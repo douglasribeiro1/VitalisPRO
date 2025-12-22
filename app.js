@@ -1,7 +1,3 @@
-        // ================================================================================== //
-        // --- INÍCIO DO CONTEÚDO PARA O ARQUIVO: script.js (Recorte da linha abaixo) --- //
-        // ================================================================================== //
-
         import { createApp, ref, computed, onMounted } from 'https://unpkg.com/vue@3/dist/vue.esm-browser.js';
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
         import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
@@ -219,7 +215,3 @@ const firebaseConfig = {
                 };
             }
         }).mount('#app');
-
-        // ================================================================================== //
-        // --- FIM DO CONTEÚDO PARA O ARQUIVO: script.js (Recorte até a linha acima) --- //
-        // ================================================================================== //
