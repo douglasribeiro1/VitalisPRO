@@ -4,8 +4,7 @@
         import { getFirestore, collection, addDoc, query, onSnapshot, orderBy, serverTimestamp, enableIndexedDbPersistence, Timestamp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
 
         // ----------------------------------------------------------------------------------
-        // ATENÇÃO: COLE ABAIXO OS DADOS DO FIREBASE QUE VOCÊ COPIOU DO CONSOLE
-        // Substitua o objeto { ... } inteiro pelo seu config.
+        // ATENÇÃO: COLE ABAIXO OS DADOS DO FIREBASE
         // ----------------------------------------------------------------------------------
 const firebaseConfig = {
   apiKey: "AIzaSyChz1_z4RbTgVVx1Q8tJC8E0CcibDP9WBY",
@@ -20,8 +19,17 @@ const firebaseConfig = {
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
+        
+        // Nome da coleção COMPARTILHADA para toda a família
+        const FAMILY_SHARED_ID = 'familia_principal_compartilhada';
 
-        // Tenta habilitar persistência offline (Critical for PWA)
+        // Lista de e-mails permitidos
+        const ALLOWED_EMAILS = [
+            'douglasrgomes@gmail.com',
+            'douglas20221690@gmail.com',
+            'doribegomes@gmail.com'
+        ];
+
         try {
             enableIndexedDbPersistence(db).catch((err) => console.log("Persistence error:", err.code));
         } catch(e) {}
@@ -52,9 +60,9 @@ const firebaseConfig = {
                 const upcomingReminders = computed(() => {
                     const now = new Date();
                     return records.value
-                        .filter(r => r.category === 'Lembrete' && new Date(r.date) >= now) // Apenas datas futuras ou iguais
-                        .sort((a, b) => new Date(a.date) - new Date(b.date)) // Ordenar do mais próximo
-                        .slice(0, 5); // Pegar os 5 primeiros
+                        .filter(r => r.category === 'Lembrete' && new Date(r.date) >= now)
+                        .sort((a, b) => new Date(a.date) - new Date(b.date))
+                        .slice(0, 5);
                 });
 
                 // Auth Logic
@@ -64,9 +72,11 @@ const firebaseConfig = {
                     const provider = new GoogleAuthProvider();
                     try {
                         const result = await signInWithPopup(auth, provider);
-                        if (result.user.email !== 'douglasrgomes@gmail.com') {
+                        
+                        // Verifica se o email está na lista de permitidos
+                        if (!ALLOWED_EMAILS.includes(result.user.email)) {
                             await signOut(auth);
-                            errorMsg.value = 'Acesso restrito. Email não autorizado.';
+                            errorMsg.value = 'Acesso restrito. Email não está na lista autorizada.';
                         }
                     } catch (error) {
                         console.error(error);
@@ -82,18 +92,19 @@ const firebaseConfig = {
                 let unsubscribeMembers = null;
                 let unsubscribeRecords = null;
 
-                const setupListeners = (uid) => {
-                    const membersRef = collection(db, 'families', uid, 'members');
+                const setupListeners = () => {
+                    // Agora usamos um ID fixo (FAMILY_SHARED_ID) em vez do UID do usuário
+                    // Isso garante que todos os 3 e-mails vejam os mesmos dados
+                    const membersRef = collection(db, 'families', FAMILY_SHARED_ID, 'members');
                     unsubscribeMembers = onSnapshot(membersRef, (snapshot) => {
                         members.value = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                     });
 
-                    const recordsRef = collection(db, 'families', uid, 'records');
+                    const recordsRef = collection(db, 'families', FAMILY_SHARED_ID, 'records');
                     const q = query(recordsRef, orderBy('date', 'desc'));
                     unsubscribeRecords = onSnapshot(q, (snapshot) => {
                         records.value = snapshot.docs.map(doc => {
                             const data = doc.data();
-                            // Convert Timestamp to ISO string for easier handling in JS
                             const date = data.date && data.date.toDate ? data.date.toDate().toISOString() : data.date;
                             return { id: doc.id, ...data, date };
                         });
@@ -102,9 +113,10 @@ const firebaseConfig = {
 
                 onMounted(() => {
                     onAuthStateChanged(auth, (currentUser) => {
-                        if (currentUser && currentUser.email === 'douglasrgomes@gmail.com') {
+                        if (currentUser && ALLOWED_EMAILS.includes(currentUser.email)) {
                             user.value = currentUser;
-                            setupListeners(currentUser.uid);
+                            // Configura os ouvintes para o banco compartilhado
+                            setupListeners();
                         } else {
                             user.value = null;
                             if (currentUser) signOut(auth);
@@ -116,7 +128,8 @@ const firebaseConfig = {
                 const addMember = async () => {
                     if (!newMember.value.name) return;
                     try {
-                        await addDoc(collection(db, 'families', user.value.uid, 'members'), {
+                        // Salva no banco compartilhado
+                        await addDoc(collection(db, 'families', FAMILY_SHARED_ID, 'members'), {
                             ...newMember.value,
                             createdAt: serverTimestamp()
                         });
@@ -134,14 +147,14 @@ const firebaseConfig = {
                         const member = members.value.find(m => m.id === newRecord.value.memberId);
                         const memberName = member ? member.name : 'Desconhecido';
 
-                        await addDoc(collection(db, 'families', user.value.uid, 'records'), {
+                        // Salva no banco compartilhado
+                        await addDoc(collection(db, 'families', FAMILY_SHARED_ID, 'records'), {
                             ...newRecord.value,
                             memberName,
-                            date: new Date(newRecord.value.date), // Save as timestamp
+                            date: new Date(newRecord.value.date),
                             createdAt: serverTimestamp()
                         });
                         
-                        // Prompt to add to calendar if it's a reminder
                         if (newRecord.value.category === 'Lembrete') {
                             if(confirm("Lembrete salvo! Deseja adicionar à sua Agenda Google?")) {
                                 addToCalendar({...newRecord.value, memberName});
@@ -149,7 +162,6 @@ const firebaseConfig = {
                         }
 
                         showAddRecordModal.value = false;
-                        // Reset form partially
                         newRecord.value.title = '';
                         newRecord.value.details = '';
                     } catch (e) { alert('Erro: ' + e.message); }
@@ -157,7 +169,7 @@ const firebaseConfig = {
 
                 const addToCalendar = (record) => {
                     const startDate = new Date(record.date);
-                    const endDate = new Date(startDate.getTime() + 60 * 60 * 1000); // +1 hora
+                    const endDate = new Date(startDate.getTime() + 60 * 60 * 1000); 
 
                     const formatGoogleDate = (date) => {
                         return date.toISOString().replace(/-|:|\.\d\d\d/g, "");
@@ -174,7 +186,6 @@ const firebaseConfig = {
                 // UI Helpers
                 const openMemberModal = () => showAddMemberModal.value = true;
                 const openRecordModal = () => {
-                    // Set default date to now
                     const now = new Date();
                     now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
                     newRecord.value.date = now.toISOString().slice(0, 16);
