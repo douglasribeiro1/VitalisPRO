@@ -1,6 +1,5 @@
-```json
 {
-  "name": "Vitalis Family",
+  "name": "Vitalis Pro",
   "short_name": "Vitalis",
   "start_url": "./index.html",
   "display": "standalone",
