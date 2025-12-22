@@ -11,16 +11,15 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link rel="manifest" href="manifest.json" id="manifest-placeholder">
 
-    <!-- Tailwind CSS (CDN) - Mantenha no HTML -->
+    <!-- Tailwind CSS (CDN) -->
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- Font Awesome - Mantenha no HTML -->
+    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <!-- Google Fonts - Mantenha no HTML -->
+    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 
-    <!-- Configuração Tailwind - Mantenha no HTML ou mova para script.js se preferir -->
     <script>
         tailwind.config = {
             theme: {
@@ -43,7 +42,37 @@
     </script>
 
     <style>
+        /* ================================================================================== */
+        /* --- INÍCIO DO CONTEÚDO PARA O ARQUIVO: style.css (Recorte da linha abaixo) --- */
+        /* ================================================================================== */
 
+        body {
+            background-color: #f8fafc;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        .fade-enter-active, .fade-leave-active {
+            transition: opacity 0.3s ease;
+        }
+        .fade-enter-from, .fade-leave-to {
+            opacity: 0;
+        }
+
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        .pb-safe {
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+
+        /* ================================================================================== */
+        /* --- FIM DO CONTEÚDO PARA O ARQUIVO: style.css (Recorte até a linha acima) --- */
+        /* ================================================================================== */
     </style>
 </head>
 <body class="text-slate-700 antialiased">
@@ -57,7 +86,7 @@
                     <i class="fa-solid fa-user-doctor"></i>
                 </div>
                 <h1 class="text-3xl font-bold text-slate-800">Vitalis Pro</h1>
-                <p class="text-slate-500 mt-2">Gestão de saúde privada e segura.</p>
+                <p class="text-slate-500 mt-2">Gestão de saúde compartilhada e segura.</p>
             </div>
             
             <button @click="loginWithGoogle" :disabled="loading" class="w-full max-w-sm flex items-center justify-center gap-3 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 font-medium py-3 px-4 rounded-xl shadow-sm transition-all active:scale-95">
@@ -342,7 +371,239 @@
 
     <!-- VUE JS & LOGIC -->
     <script type="module">
+        // ================================================================================== //
+        // --- INÍCIO DO CONTEÚDO PARA O ARQUIVO: script.js (Recorte da linha abaixo) --- //
+        // ================================================================================== //
 
+        import { createApp, ref, computed, onMounted } from 'https://unpkg.com/vue@3/dist/vue.esm-browser.js';
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+        import { getFirestore, collection, addDoc, query, onSnapshot, orderBy, serverTimestamp, enableIndexedDbPersistence, Timestamp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+
+        // ----------------------------------------------------------------------------------
+        // ATENÇÃO: COLE ABAIXO OS DADOS DO FIREBASE
+        // ----------------------------------------------------------------------------------
+        const firebaseConfig = typeof __firebase_config !== 'undefined' 
+            ? JSON.parse(__firebase_config) 
+            : { 
+                /* apiKey: "...", authDomain: "...", projectId: "...", ... */
+            };
+        // ----------------------------------------------------------------------------------
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        
+        // Nome da coleção COMPARTILHADA para toda a família
+        const FAMILY_SHARED_ID = 'familia_principal_compartilhada';
+
+        // Lista de e-mails permitidos
+        const ALLOWED_EMAILS = [
+            'douglasrgomes@gmail.com',
+            'douglas20221690@gmail.com',
+            'doribegomes@gmail.com'
+        ];
+
+        try {
+            enableIndexedDbPersistence(db).catch((err) => console.log("Persistence error:", err.code));
+        } catch(e) {}
+
+        createApp({
+            setup() {
+                const user = ref(null);
+                const activeTab = ref('dashboard');
+                const loading = ref(false);
+                const errorMsg = ref('');
+                
+                // Modals
+                const showAddMemberModal = ref(false);
+                const showAddRecordModal = ref(false);
+
+                // Data
+                const members = ref([]);
+                const records = ref([]);
+                
+                // Forms
+                const newMember = ref({ name: '', birthDate: '', bloodType: '' });
+                const newRecord = ref({ memberId: '', category: 'Lembrete', date: '', title: '', details: '' });
+
+                // Computed
+                const totalMembers = computed(() => members.value.length);
+                const lastRecord = computed(() => records.value.length > 0 ? records.value[0] : null);
+                
+                const upcomingReminders = computed(() => {
+                    const now = new Date();
+                    return records.value
+                        .filter(r => r.category === 'Lembrete' && new Date(r.date) >= now)
+                        .sort((a, b) => new Date(a.date) - new Date(b.date))
+                        .slice(0, 5);
+                });
+
+                // Auth Logic
+                const loginWithGoogle = async () => {
+                    loading.value = true;
+                    errorMsg.value = '';
+                    const provider = new GoogleAuthProvider();
+                    try {
+                        const result = await signInWithPopup(auth, provider);
+                        
+                        // Verifica se o email está na lista de permitidos
+                        if (!ALLOWED_EMAILS.includes(result.user.email)) {
+                            await signOut(auth);
+                            errorMsg.value = 'Acesso restrito. Email não está na lista autorizada.';
+                        }
+                    } catch (error) {
+                        console.error(error);
+                        errorMsg.value = 'Erro ao fazer login.';
+                    } finally {
+                        loading.value = false;
+                    }
+                };
+
+                const logout = () => signOut(auth);
+
+                // Firestore Listeners
+                let unsubscribeMembers = null;
+                let unsubscribeRecords = null;
+
+                const setupListeners = () => {
+                    // Agora usamos um ID fixo (FAMILY_SHARED_ID) em vez do UID do usuário
+                    // Isso garante que todos os 3 e-mails vejam os mesmos dados
+                    const membersRef = collection(db, 'families', FAMILY_SHARED_ID, 'members');
+                    unsubscribeMembers = onSnapshot(membersRef, (snapshot) => {
+                        members.value = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                    });
+
+                    const recordsRef = collection(db, 'families', FAMILY_SHARED_ID, 'records');
+                    const q = query(recordsRef, orderBy('date', 'desc'));
+                    unsubscribeRecords = onSnapshot(q, (snapshot) => {
+                        records.value = snapshot.docs.map(doc => {
+                            const data = doc.data();
+                            const date = data.date && data.date.toDate ? data.date.toDate().toISOString() : data.date;
+                            return { id: doc.id, ...data, date };
+                        });
+                    });
+                };
+
+                onMounted(() => {
+                    onAuthStateChanged(auth, (currentUser) => {
+                        if (currentUser && ALLOWED_EMAILS.includes(currentUser.email)) {
+                            user.value = currentUser;
+                            // Configura os ouvintes para o banco compartilhado
+                            setupListeners();
+                        } else {
+                            user.value = null;
+                            if (currentUser) signOut(auth);
+                        }
+                    });
+                });
+
+                // Actions
+                const addMember = async () => {
+                    if (!newMember.value.name) return;
+                    try {
+                        // Salva no banco compartilhado
+                        await addDoc(collection(db, 'families', FAMILY_SHARED_ID, 'members'), {
+                            ...newMember.value,
+                            createdAt: serverTimestamp()
+                        });
+                        showAddMemberModal.value = false;
+                        newMember.value = { name: '', birthDate: '', bloodType: '' };
+                    } catch (e) { alert('Erro: ' + e.message); }
+                };
+
+                const addRecord = async () => {
+                    if (!newRecord.value.title || !newRecord.value.date || !newRecord.value.memberId) {
+                        alert("Preencha os campos obrigatórios.");
+                        return;
+                    }
+                    try {
+                        const member = members.value.find(m => m.id === newRecord.value.memberId);
+                        const memberName = member ? member.name : 'Desconhecido';
+
+                        // Salva no banco compartilhado
+                        await addDoc(collection(db, 'families', FAMILY_SHARED_ID, 'records'), {
+                            ...newRecord.value,
+                            memberName,
+                            date: new Date(newRecord.value.date),
+                            createdAt: serverTimestamp()
+                        });
+                        
+                        if (newRecord.value.category === 'Lembrete') {
+                            if(confirm("Lembrete salvo! Deseja adicionar à sua Agenda Google?")) {
+                                addToCalendar({...newRecord.value, memberName});
+                            }
+                        }
+
+                        showAddRecordModal.value = false;
+                        newRecord.value.title = '';
+                        newRecord.value.details = '';
+                    } catch (e) { alert('Erro: ' + e.message); }
+                };
+
+                const addToCalendar = (record) => {
+                    const startDate = new Date(record.date);
+                    const endDate = new Date(startDate.getTime() + 60 * 60 * 1000); 
+
+                    const formatGoogleDate = (date) => {
+                        return date.toISOString().replace(/-|:|\.\d\d\d/g, "");
+                    };
+
+                    const title = encodeURIComponent(`Vitalis: ${record.title} (${record.memberName})`);
+                    const details = encodeURIComponent(record.details || '');
+                    const dates = `${formatGoogleDate(startDate)}/${formatGoogleDate(endDate)}`;
+
+                    const url = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&dates=${dates}&details=${details}`;
+                    window.open(url, '_blank');
+                };
+
+                // UI Helpers
+                const openMemberModal = () => showAddMemberModal.value = true;
+                const openRecordModal = () => {
+                    const now = new Date();
+                    now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+                    newRecord.value.date = now.toISOString().slice(0, 16);
+                    showAddRecordModal.value = true;
+                };
+
+                const calculateAge = (birthDate) => {
+                    if (!birthDate) return 0;
+                    const diff = Date.now() - new Date(birthDate).getTime();
+                    return Math.floor(diff / (1000 * 60 * 60 * 24 * 365.25));
+                };
+
+                const formatDate = (isoString) => {
+                    if (!isoString) return '';
+                    const date = new Date(isoString);
+                    return new Intl.DateTimeFormat('pt-BR', { 
+                        day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit'
+                    }).format(date);
+                };
+
+                const getCategoryColor = (cat) => {
+                    const map = { 'Consulta': 'bg-blue-500', 'Exame': 'bg-purple-500', 'Vacina': 'bg-green-500', 'Sintoma': 'bg-orange-500', 'Lembrete': 'bg-yellow-500' };
+                    return map[cat] || 'bg-slate-400';
+                };
+
+                const getCategoryIcon = (cat) => {
+                    const map = { 'Consulta': 'fa-solid fa-user-doctor', 'Exame': 'fa-solid fa-microscope', 'Lembrete': 'fa-regular fa-clock', 'Sintoma': 'fa-solid fa-heart-pulse' };
+                    return map[cat] || 'fa-solid fa-file';
+                };
+
+                return {
+                    user, loading, errorMsg, activeTab,
+                    members, records, totalMembers, lastRecord, upcomingReminders,
+                    showAddMemberModal, showAddRecordModal, newMember, newRecord,
+                    loginWithGoogle, logout, addMember, addRecord, addToCalendar,
+                    openMemberModal, openRecordModal,
+                    calculateAge, formatDate, getCategoryColor, getCategoryIcon
+                };
+            }
+        }).mount('#app');
+
+        // ================================================================================== //
+        // --- FIM DO CONTEÚDO PARA O ARQUIVO: script.js (Recorte até a linha acima) --- //
+        // ================================================================================== //
     </script>
 </body>
 </html>
