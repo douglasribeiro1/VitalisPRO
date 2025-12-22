@@ -1,0 +1,31 @@
+        /* ================================================================================== */
+        /* --- INÍCIO DO CONTEÚDO PARA O ARQUIVO: style.css (Recorte da linha abaixo) --- */
+        /* ================================================================================== */
+
+        body {
+            background-color: #f8fafc;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        .fade-enter-active, .fade-leave-active {
+            transition: opacity 0.3s ease;
+        }
+        .fade-enter-from, .fade-leave-to {
+            opacity: 0;
+        }
+
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        .pb-safe {
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+
+        /* ================================================================================== */
+        /* --- FIM DO CONTEÚDO PARA O ARQUIVO: style.css (Recorte até a linha acima) --- */
+        /* ================================================================================== */
