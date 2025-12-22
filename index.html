@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Vitalis Pro</title>
+    
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#3B82F6">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="manifest" href="manifest.json" id="manifest-placeholder">
+
+    <!-- Tailwind CSS (CDN) - Mantenha no HTML -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Font Awesome - Mantenha no HTML -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Google Fonts - Mantenha no HTML -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+    <!-- Configuração Tailwind - Mantenha no HTML ou mova para script.js se preferir -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        vitalis: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            900: '#1e3a8a',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+
+    </style>
+</head>
+<body class="text-slate-700 antialiased">
+
+    <div id="app" class="min-h-screen flex flex-col relative">
+        
+        <!-- ================= LOGIN SCREEN ================= -->
+        <div v-if="!user" class="flex-1 flex flex-col items-center justify-center p-6 bg-white">
+            <div class="mb-8 text-center">
+                <div class="w-20 h-20 bg-vitalis-100 rounded-2xl flex items-center justify-center mx-auto mb-4 text-vitalis-600 text-3xl">
+                    <i class="fa-solid fa-user-doctor"></i>
+                </div>
+                <h1 class="text-3xl font-bold text-slate-800">Vitalis Pro</h1>
+                <p class="text-slate-500 mt-2">Gestão de saúde privada e segura.</p>
+            </div>
+            
+            <button @click="loginWithGoogle" :disabled="loading" class="w-full max-w-sm flex items-center justify-center gap-3 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 font-medium py-3 px-4 rounded-xl shadow-sm transition-all active:scale-95">
+                <img src="https://www.svgrepo.com/show/475656/google-color.svg" class="w-6 h-6" alt="Google Logo">
+                <span>{{ loading ? 'Carregando...' : 'Entrar com Google' }}</span>
+            </button>
+            
+            <p v-if="errorMsg" class="mt-4 text-red-500 text-sm text-center bg-red-50 p-2 rounded-lg w-full max-w-sm">
+                {{ errorMsg }}
+            </p>
+        </div>
+
+        <!-- ================= MAIN APP ================= -->
+        <div v-else class="flex-1 flex flex-col pb-24 sm:pb-0">
+            
+            <!-- HEADER MOBILE -->
+            <header class="bg-white shadow-sm sticky top-0 z-10 px-4 py-3 flex justify-between items-center">
+                <div class="flex items-center gap-2">
+                    <div class="w-8 h-8 bg-vitalis-500 rounded-lg flex items-center justify-center text-white">
+                        <i class="fa-solid fa-heart-pulse text-sm"></i>
+                    </div>
+                    <span class="font-semibold text-slate-800">Vitalis Pro</span>
+                </div>
+                <div class="flex items-center gap-3">
+                    <img :src="user.photoURL" class="w-8 h-8 rounded-full border border-slate-200" alt="Avatar">
+                    <button @click="logout" class="text-slate-400 hover:text-red-500 text-sm">
+                        <i class="fa-solid fa-right-from-bracket"></i>
+                    </button>
+                </div>
+            </header>
+
+            <!-- CONTEÚDO DINÂMICO (ABAS) -->
+            <main class="flex-1 p-4 max-w-2xl mx-auto w-full overflow-y-auto">
+                
+                <!-- VIEW: DASHBOARD -->
+                <div v-if="activeTab === 'dashboard'" class="space-y-6">
+                    <!-- Welcome -->
+                    <div>
+                        <h2 class="text-xl font-bold text-slate-800">Olá, {{ user.displayName.split(' ')[0] }}</h2>
+                        <p class="text-sm text-slate-500">Visão geral dos pacientes e pendências.</p>
+                    </div>
+
+                    <!-- Quick Stats Cards -->
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="bg-blue-600 text-white p-4 rounded-2xl shadow-lg shadow-blue-200">
+                            <div class="flex justify-between items-start mb-2">
+                                <i class="fa-regular fa-bell opacity-80"></i>
+                                <span class="text-xs bg-white/20 px-2 py-0.5 rounded-full">Futuro</span>
+                            </div>
+                            <h3 class="text-2xl font-bold">{{ upcomingReminders.length }}</h3>
+                            <p class="text-xs opacity-90">Lembretes Ativos</p>
+                        </div>
+                        <div class="bg-white border border-slate-100 p-4 rounded-2xl shadow-sm">
+                            <div class="flex justify-between items-start mb-2 text-vitalis-600">
+                                <i class="fa-solid fa-users"></i>
+                            </div>
+                            <h3 class="text-2xl font-bold text-slate-800">{{ totalMembers }}</h3>
+                            <p class="text-xs text-slate-500">Pacientes/Membros</p>
+                        </div>
+                    </div>
+
+                    <!-- SECTION: UPCOMING REMINDERS (LEMBRETES) -->
+                    <div v-if="upcomingReminders.length > 0">
+                        <div class="flex justify-between items-center mb-3">
+                            <h3 class="font-semibold text-slate-800">Próximos Lembretes</h3>
+                        </div>
+                        <div class="space-y-3">
+                            <div v-for="reminder in upcomingReminders" :key="reminder.id" class="bg-yellow-50 border border-yellow-100 p-4 rounded-xl flex justify-between items-center">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-10 h-10 rounded-full bg-yellow-100 text-yellow-600 flex items-center justify-center flex-shrink-0">
+                                        <i class="fa-regular fa-clock"></i>
+                                    </div>
+                                    <div>
+                                        <p class="text-sm font-bold text-slate-800">{{ reminder.title }}</p>
+                                        <p class="text-xs text-slate-500">
+                                            {{ formatDate(reminder.date) }} • {{ reminder.memberName }}
+                                        </p>
+                                    </div>
+                                </div>
+                                <button @click="addToCalendar(reminder)" class="w-8 h-8 rounded-full bg-white border border-slate-200 text-slate-500 hover:text-blue-600 flex items-center justify-center shadow-sm" title="Exportar para Agenda">
+                                    <i class="fa-solid fa-calendar-plus"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Último Evento Geral -->
+                    <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-100">
+                        <div class="flex justify-between items-center mb-3">
+                            <h3 class="font-semibold text-slate-800">Última Atividade</h3>
+                            <button @click="activeTab = 'timeline'" class="text-xs text-blue-500 font-medium">Ver Histórico</button>
+                        </div>
+                        <div v-if="lastRecord" class="flex gap-3 items-center">
+                            <div class="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center text-slate-500 flex-shrink-0">
+                                <i :class="getCategoryIcon(lastRecord.category)"></i>
+                            </div>
+                            <div>
+                                <p class="text-sm font-medium text-slate-800">{{ lastRecord.title }}</p>
+                                <p class="text-xs text-slate-500">{{ formatDate(lastRecord.date) }} • {{ lastRecord.memberName }}</p>
+                            </div>
+                        </div>
+                        <div v-else class="text-center py-4 text-slate-400 text-sm">
+                            Nenhum registro recente.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- VIEW: MEMBERS -->
+                <div v-if="activeTab === 'members'" class="space-y-4">
+                    <div class="flex justify-between items-center">
+                        <h2 class="text-xl font-bold text-slate-800">Pacientes</h2>
+                        <button @click="openMemberModal()" class="text-blue-600 bg-blue-50 px-3 py-1.5 rounded-lg text-sm font-medium">
+                            <i class="fa-solid fa-plus mr-1"></i> Novo
+                        </button>
+                    </div>
+
+                    <div v-for="member in members" :key="member.id" class="bg-white p-4 rounded-xl border border-slate-100 shadow-sm flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 font-bold">
+                                {{ member.name.charAt(0) }}
+                            </div>
+                            <div>
+                                <h4 class="font-semibold text-slate-800">{{ member.name }}</h4>
+                                <p class="text-xs text-slate-500">{{ calculateAge(member.birthDate) }} anos • {{ member.bloodType || 'N/A' }}</p>
+                            </div>
+                        </div>
+                        <button class="text-slate-400 hover:text-blue-500">
+                            <i class="fa-solid fa-chevron-right"></i>
+                        </button>
+                    </div>
+                    
+                    <div v-if="members.length === 0" class="text-center py-10 text-slate-400">
+                        <i class="fa-solid fa-users text-3xl mb-2 opacity-50"></i>
+                        <p>Nenhum paciente cadastrado.</p>
+                    </div>
+                </div>
+
+                <!-- VIEW: TIMELINE -->
+                <div v-if="activeTab === 'timeline'" class="space-y-4">
+                    <h2 class="text-xl font-bold text-slate-800">Linha do Tempo Completa</h2>
+                    
+                    <div class="relative pl-4 border-l-2 border-slate-200 space-y-6">
+                        <div v-for="record in records" :key="record.id" class="relative">
+                            <div class="absolute -left-[21px] top-1 w-4 h-4 rounded-full border-2 border-white" :class="getCategoryColor(record.category)"></div>
+                            <div class="bg-white p-3 rounded-lg border border-slate-100 shadow-sm">
+                                <div class="flex justify-between items-start">
+                                    <span class="text-xs font-bold uppercase tracking-wider text-slate-400">{{ record.category }}</span>
+                                    <span class="text-xs text-slate-400">{{ formatDate(record.date) }}</span>
+                                </div>
+                                <h4 class="font-medium text-slate-800 mt-1">{{ record.title }}</h4>
+                                <p class="text-sm text-slate-600 mt-1">{{ record.details }}</p>
+                                <div class="mt-2 flex justify-between items-center">
+                                    <span class="text-xs bg-slate-50 text-slate-500 px-2 py-0.5 rounded-full">{{ record.memberName }}</span>
+                                    
+                                    <!-- Export Button specifically for Reminders in timeline -->
+                                    <button v-if="record.category === 'Lembrete'" @click="addToCalendar(record)" class="text-xs text-blue-500 flex items-center gap-1">
+                                        <i class="fa-regular fa-calendar"></i> Agenda
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                 <!-- VIEW: DOCS -->
+                 <div v-if="activeTab === 'docs'" class="space-y-4">
+                    <h2 class="text-xl font-bold text-slate-800">Cofre de Documentos</h2>
+                    <div class="bg-blue-50 border border-dashed border-blue-300 rounded-xl p-6 text-center cursor-pointer hover:bg-blue-100 transition-colors">
+                        <i class="fa-solid fa-cloud-arrow-up text-3xl text-blue-500 mb-2"></i>
+                        <h3 class="font-medium text-slate-700">Upload Seguro</h3>
+                        <p class="text-xs text-slate-500 mt-1">PDF ou Imagem (OCR Automático)</p>
+                    </div>
+                 </div>
+
+            </main>
+
+            <!-- BOTTOM NAVIGATION -->
+            <nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 pb-safe z-20">
+                <div class="flex justify-around items-center h-16 max-w-2xl mx-auto">
+                    <button @click="activeTab = 'dashboard'" :class="activeTab === 'dashboard' ? 'text-blue-600' : 'text-slate-400'" class="flex flex-col items-center gap-1 w-full h-full justify-center transition-colors">
+                        <i class="fa-solid fa-chart-pie text-lg"></i>
+                        <span class="text-[10px] font-medium">Início</span>
+                    </button>
+                    <button @click="activeTab = 'timeline'" :class="activeTab === 'timeline' ? 'text-blue-600' : 'text-slate-400'" class="flex flex-col items-center gap-1 w-full h-full justify-center transition-colors">
+                        <i class="fa-solid fa-clock-rotate-left text-lg"></i>
+                        <span class="text-[10px] font-medium">Histórico</span>
+                    </button>
+                    
+                    <!-- FAB ADD BUTTON -->
+                    <div class="relative -top-5">
+                        <button @click="openRecordModal()" class="w-14 h-14 bg-vitalis-600 rounded-full flex items-center justify-center text-white shadow-lg shadow-blue-300 transform active:scale-95 transition-transform">
+                            <i class="fa-solid fa-plus text-xl"></i>
+                        </button>
+                    </div>
+                    
+                    <button @click="activeTab = 'members'" :class="activeTab === 'members' ? 'text-blue-600' : 'text-slate-400'" class="flex flex-col items-center gap-1 w-full h-full justify-center transition-colors">
+                        <i class="fa-solid fa-users text-lg"></i>
+                        <span class="text-[10px] font-medium">Pacientes</span>
+                    </button>
+                    <button @click="activeTab = 'docs'" :class="activeTab === 'docs' ? 'text-blue-600' : 'text-slate-400'" class="flex flex-col items-center gap-1 w-full h-full justify-center transition-colors">
+                        <i class="fa-solid fa-folder-closed text-lg"></i>
+                        <span class="text-[10px] font-medium">Docs</span>
+                    </button>
+                </div>
+            </nav>
+        </div>
+
+        <!-- MODAL ADD MEMBER -->
+        <div v-if="showAddMemberModal" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
+            <div class="bg-white rounded-2xl w-full max-w-sm p-6 shadow-xl">
+                <h3 class="text-lg font-bold mb-4">Novo Paciente</h3>
+                <input v-model="newMember.name" placeholder="Nome Completo" class="w-full mb-3 p-3 bg-slate-50 rounded-lg border border-slate-200 text-sm outline-none focus:border-blue-500 transition-colors">
+                <input v-model="newMember.birthDate" type="date" class="w-full mb-3 p-3 bg-slate-50 rounded-lg border border-slate-200 text-sm outline-none focus:border-blue-500">
+                <input v-model="newMember.bloodType" placeholder="Tipo Sanguíneo (Opcional)" class="w-full mb-4 p-3 bg-slate-50 rounded-lg border border-slate-200 text-sm outline-none focus:border-blue-500">
+                
+                <div class="flex gap-3">
+                    <button @click="showAddMemberModal = false" class="flex-1 py-3 text-slate-500 font-medium">Cancelar</button>
+                    <button @click="addMember" class="flex-1 py-3 bg-blue-600 text-white rounded-xl font-medium shadow-md shadow-blue-200">Salvar</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- MODAL ADD RECORD/REMINDER -->
+        <div v-if="showAddRecordModal" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-end sm:justify-center p-0 sm:p-4 backdrop-blur-sm animate-fade">
+            <div class="bg-white rounded-t-2xl sm:rounded-2xl w-full max-w-sm p-6 shadow-xl h-[85vh] sm:h-auto overflow-y-auto">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-lg font-bold">Novo Registro</h3>
+                    <button @click="showAddRecordModal = false" class="text-slate-400"><i class="fa-solid fa-times text-xl"></i></button>
+                </div>
+
+                <div class="space-y-4">
+                    <!-- Select Member -->
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-500 mb-1 uppercase">Paciente</label>
+                        <select v-model="newRecord.memberId" class="w-full p-3 bg-slate-50 rounded-xl border border-slate-200 outline-none focus:border-blue-500">
+                            <option value="" disabled>Selecione...</option>
+                            <option v-for="m in members" :key="m.id" :value="m.id">{{ m.name }}</option>
+                        </select>
+                    </div>
+
+                    <!-- Select Type -->
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-500 mb-1 uppercase">Tipo</label>
+                        <div class="grid grid-cols-2 gap-2">
+                            <button @click="newRecord.category = 'Lembrete'" :class="newRecord.category === 'Lembrete' ? 'bg-yellow-100 border-yellow-500 text-yellow-700' : 'bg-slate-50 border-slate-200 text-slate-600'" class="p-2 rounded-lg border text-sm font-medium transition-colors flex items-center justify-center gap-2">
+                                <i class="fa-regular fa-clock"></i> Lembrete
+                            </button>
+                            <button @click="newRecord.category = 'Consulta'" :class="newRecord.category === 'Consulta' ? 'bg-blue-100 border-blue-500 text-blue-700' : 'bg-slate-50 border-slate-200 text-slate-600'" class="p-2 rounded-lg border text-sm font-medium transition-colors flex items-center justify-center gap-2">
+                                <i class="fa-solid fa-user-doctor"></i> Consulta
+                            </button>
+                            <button @click="newRecord.category = 'Exame'" :class="newRecord.category === 'Exame' ? 'bg-purple-100 border-purple-500 text-purple-700' : 'bg-slate-50 border-slate-200 text-slate-600'" class="p-2 rounded-lg border text-sm font-medium transition-colors flex items-center justify-center gap-2">
+                                <i class="fa-solid fa-microscope"></i> Exame
+                            </button>
+                            <button @click="newRecord.category = 'Sintoma'" :class="newRecord.category === 'Sintoma' ? 'bg-orange-100 border-orange-500 text-orange-700' : 'bg-slate-50 border-slate-200 text-slate-600'" class="p-2 rounded-lg border text-sm font-medium transition-colors flex items-center justify-center gap-2">
+                                <i class="fa-solid fa-heart-pulse"></i> Sintoma
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Date & Time -->
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-500 mb-1 uppercase">Data e Hora</label>
+                        <input v-model="newRecord.date" type="datetime-local" class="w-full p-3 bg-slate-50 rounded-xl border border-slate-200 outline-none focus:border-blue-500">
+                    </div>
+
+                    <!-- Details -->
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-500 mb-1 uppercase">Título</label>
+                        <input v-model="newRecord.title" placeholder="Ex: Tomar remédio, Consulta Dr. Silva" class="w-full p-3 bg-slate-50 rounded-xl border border-slate-200 outline-none focus:border-blue-500 mb-2">
+                        <label class="block text-xs font-semibold text-slate-500 mb-1 uppercase">Detalhes</label>
+                        <textarea v-model="newRecord.details" rows="3" placeholder="Observações..." class="w-full p-3 bg-slate-50 rounded-xl border border-slate-200 outline-none focus:border-blue-500"></textarea>
+                    </div>
+
+                    <button @click="addRecord" class="w-full py-4 bg-vitalis-600 text-white rounded-xl font-bold shadow-lg shadow-blue-200 active:scale-95 transition-transform">
+                        Salvar Registro
+                    </button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- VUE JS & LOGIC -->
+    <script type="module">
+
+    </script>
+</body>
+</html>
