@@ -9,7 +9,7 @@
     <meta name="theme-color" content="#3B82F6">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <link rel="manifest" href="manifest.json" id="manifest-placeholder">
+    <link rel="manifest" href="manifest.json">
 
     <!-- Tailwind CSS (CDN) -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -20,6 +20,10 @@
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 
+    <!-- CSS Personalizado -->
+    <link rel="stylesheet" href="style.css">
+
+    <!-- Configuração Tailwind -->
     <script>
         tailwind.config = {
             theme: {
@@ -40,16 +44,13 @@
             }
         }
     </script>
-
-    <style>
-    </style>
 </head>
 <body class="text-slate-700 antialiased">
 
     <div id="app" class="min-h-screen flex flex-col relative">
         
         <!-- ================= LOGIN SCREEN ================= -->
-        <div v-if="!user" class="flex-1 flex flex-col items-center justify-center p-6 bg-white">
+        <div v-if="!user" class="flex-1 flex flex-col items-center justify-center p-6 bg-white" v-cloak>
             <div class="mb-8 text-center">
                 <div class="w-20 h-20 bg-vitalis-100 rounded-2xl flex items-center justify-center mx-auto mb-4 text-vitalis-600 text-3xl">
                     <i class="fa-solid fa-user-doctor"></i>
@@ -69,7 +70,7 @@
         </div>
 
         <!-- ================= MAIN APP ================= -->
-        <div v-else class="flex-1 flex flex-col pb-24 sm:pb-0">
+        <div v-else class="flex-1 flex flex-col pb-24 sm:pb-0" v-cloak>
             
             <!-- HEADER MOBILE -->
             <header class="bg-white shadow-sm sticky top-0 z-10 px-4 py-3 flex justify-between items-center">
@@ -264,7 +265,7 @@
         </div>
 
         <!-- MODAL ADD MEMBER -->
-        <div v-if="showAddMemberModal" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
+        <div v-if="showAddMemberModal" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 backdrop-blur-sm" v-cloak>
             <div class="bg-white rounded-2xl w-full max-w-sm p-6 shadow-xl">
                 <h3 class="text-lg font-bold mb-4">Novo Paciente</h3>
                 <input v-model="newMember.name" placeholder="Nome Completo" class="w-full mb-3 p-3 bg-slate-50 rounded-lg border border-slate-200 text-sm outline-none focus:border-blue-500 transition-colors">
@@ -279,7 +280,7 @@
         </div>
 
         <!-- MODAL ADD RECORD/REMINDER -->
-        <div v-if="showAddRecordModal" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-end sm:justify-center p-0 sm:p-4 backdrop-blur-sm animate-fade">
+        <div v-if="showAddRecordModal" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-end sm:justify-center p-0 sm:p-4 backdrop-blur-sm animate-fade" v-cloak>
             <div class="bg-white rounded-t-2xl sm:rounded-2xl w-full max-w-sm p-6 shadow-xl h-[85vh] sm:h-auto overflow-y-auto">
                 <div class="flex justify-between items-center mb-6">
                     <h3 class="text-lg font-bold">Novo Registro</h3>
@@ -338,8 +339,18 @@
 
     </div>
 
-    <!-- VUE JS & LOGIC -->
-    <script type="module">
+    <!-- Script Principal -->
+    <script type="module" src="app.js"></script>
+    
+    <!-- Service Worker Registration -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js')
+                    .then(registration => console.log('SW registrado com sucesso:', registration.scope))
+                    .catch(err => console.log('Falha no registro do SW:', err));
+            });
+        }
     </script>
 </body>
 </html>
