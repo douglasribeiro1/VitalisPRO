@@ -416,7 +416,8 @@
                         </div>
 
                         <div class="space-y-4">
-                            <div v-for="record in filteredTimeline" :key="record.id" class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm hover:border-medical-300 transition-all flex gap-5 group">
+                            <!-- Transformado em clicável chamando goToMemberFromRecord -->
+                            <div v-for="record in filteredTimeline" :key="record.id" @click="goToMemberFromRecord(record.memberId)" class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm hover:border-medical-300 hover:shadow-md transition-all flex gap-5 group cursor-pointer">
                                 <div class="flex flex-col items-center min-w-[50px]">
                                     <div class="w-12 h-12 rounded-full flex items-center justify-center text-white text-lg shadow-md" :class="getCategoryColor(record.category)">
                                         <i :class="getCategoryIcon(record.category)"></i>
@@ -801,6 +802,18 @@
                     activeTab.value = 'memberDetail';
                 };
 
+                // Nova função para abrir paciente a partir de um registro no Histórico Global
+                const goToMemberFromRecord = (memberId) => {
+                    const member = members.value.find(m => m.id === memberId);
+                    if (member) {
+                        currentMember.value = member;
+                        memberTab.value = 'history'; // Já abre na aba do prontuário
+                        activeTab.value = 'memberDetail';
+                    } else {
+                        alert('Paciente não encontrado ou foi excluído.');
+                    }
+                };
+
                 // CRUD Registros Simples
                 const openRecordModal = (record = null, preSelectedMemberId = null) => {
                     if (record) {
@@ -924,7 +937,7 @@
                     showConsultationModal, consultationForm, openConsultationModal, saveConsultation,
                     totalMembers, lastRecord, upcomingReminders,
                     loginWithGoogle, logout, navigateTo,
-                    openMemberModal, saveMember, deleteMember, openMemberDetail,
+                    openMemberModal, saveMember, deleteMember, openMemberDetail, goToMemberFromRecord, // Nova função exportada
                     openRecordModal, saveRecord, deleteRecord,
                     getMemberRecords, calculateAge, formatDate, getCategoryColor, getCategoryIcon, addToCalendar
                 };
