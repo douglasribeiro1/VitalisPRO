@@ -1,15 +1,17 @@
 {
-  "name": "Vitalis Pro",
-  "short_name": "Vitalis",
+  "name": "Vitalis Pro - Saúde & Prontuário Familiar",
+  "short_name": "Vitalis Pro",
+  "description": "Prontuário e Gestão de Saúde Familiar com Alertas e Exames",
   "start_url": "./index.html",
   "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#0f766e",
+  "background_color": "#090d16",
+  "theme_color": "#0d9488",
   "icons": [
     {
       "src": "./icon.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     }
   ]
 }
