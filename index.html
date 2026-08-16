@@ -6,16 +6,16 @@
     <title>Vitalis Pro - Prontuário & Saúde Familiar</title>
     
     <!-- PWA Config -->
-    <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#0f766e">
+    <link rel="manifest" href="manifest.json?v=3">
+    <meta name="theme-color" content="#0d9488">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Vitalis Pro">
     
-    <!-- Ícone Moderno -->
-    <link rel="icon" type="image/png" href="./icon.png">
-    <link rel="apple-touch-icon" href="./icon.png">
+    <!-- Ícone Moderno com Cache Busting -->
+    <link rel="icon" type="image/png" href="./icon.png?v=3">
+    <link rel="apple-touch-icon" href="./icon.png?v=3">
 
     <!-- Google Fonts & FontAwesome -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -57,11 +57,6 @@
                             700: '#0f766e',
                             800: '#115e59',
                             900: '#134e4a'
-                        },
-                        brand: {
-                            dark: '#0b1120',
-                            card: '#1e293b',
-                            slate: '#0f172a'
                         }
                     },
                     boxShadow: {
@@ -84,9 +79,6 @@
         
         .fade-enter-active, .fade-leave-active { transition: opacity 0.2s ease, transform 0.2s ease; }
         .fade-enter-from, .fade-leave-to { opacity: 0; transform: translateY(4px); }
-
-        .modal-fade-enter-active, .modal-fade-leave-active { transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1); }
-        .modal-fade-enter-from, .modal-fade-leave-to { opacity: 0; transform: scale(0.96) translateY(8px); }
 
         /* Custom scrollbar */
         ::-webkit-scrollbar { width: 6px; height: 6px; }
@@ -127,7 +119,7 @@
 
             <div class="w-full max-w-md bg-white/10 backdrop-blur-xl border border-white/20 p-8 md:p-10 rounded-3xl shadow-2xl relative z-10 text-center animate-fade">
                 <div class="w-24 h-24 rounded-3xl p-1 bg-gradient-to-tr from-tealmed-400 to-emerald-400 mx-auto mb-6 shadow-glow-teal flex items-center justify-center overflow-hidden">
-                    <img src="./icon.png" alt="Logo Vitalis Pro" class="w-full h-full object-cover rounded-[22px]">
+                    <img src="./icon.png?v=3" alt="Logo Vitalis Pro" class="w-full h-full object-cover rounded-[22px]">
                 </div>
                 
                 <h1 class="text-3xl font-extrabold text-white tracking-tight">Vitalis Pro</h1>
@@ -164,7 +156,7 @@
                 <div class="p-6 border-b border-slate-100 flex items-center justify-between">
                     <div class="flex items-center gap-3">
                         <div class="w-11 h-11 rounded-2xl p-0.5 bg-gradient-to-tr from-tealmed-600 to-emerald-500 shadow-md shadow-tealmed-600/20 flex items-center justify-center overflow-hidden">
-                            <img src="./icon.png" class="w-full h-full object-cover rounded-[14px]">
+                            <img src="./icon.png?v=3" class="w-full h-full object-cover rounded-[14px]">
                         </div>
                         <div>
                             <span class="font-extrabold text-lg text-slate-900 tracking-tight leading-tight block">Vitalis Pro</span>
@@ -258,19 +250,27 @@
                     <!-- Mobile Logo & Brand -->
                     <div class="flex md:hidden items-center gap-2.5">
                         <div class="w-9 h-9 bg-tealmed-600 rounded-xl flex items-center justify-center text-white overflow-hidden shadow-sm">
-                            <img src="./icon.png" class="w-full h-full object-cover">
+                            <img src="./icon.png?v=3" class="w-full h-full object-cover">
                         </div>
                         <span class="font-extrabold text-slate-900 text-base tracking-tight">Vitalis Pro</span>
                     </div>
 
-                    <!-- Desktop Header Title / Breadcrumb -->
-                    <div class="hidden md:flex items-center gap-3">
-                        <h1 class="text-xl font-extrabold text-slate-900 tracking-tight">
-                            {{ activeTab === 'dashboard' ? 'Painel Familiar' : activeTab === 'members' ? 'Pacientes da Família' : activeTab === 'memberDetail' ? (currentMember ? currentMember.name : 'Prontuário do Paciente') : activeTab === 'examsHub' ? 'Central de Exames & Prazos' : activeTab === 'medicationsHub' ? 'Controle de Medicamentos' : 'Histórico Global' }}
+                    <!-- Desktop Header Title & Global Search Bar -->
+                    <div class="hidden md:flex items-center gap-4 flex-1 max-w-xl mr-4">
+                        <h1 class="text-lg font-extrabold text-slate-900 tracking-tight whitespace-nowrap">
+                            {{ activeTab === 'dashboard' ? 'Painel Familiar' : activeTab === 'members' ? 'Pacientes' : activeTab === 'memberDetail' ? (currentMember ? currentMember.name : 'Prontuário') : activeTab === 'examsHub' ? 'Exames & Prazos' : activeTab === 'medicationsHub' ? 'Medicamentos' : 'Histórico Global' }}
                         </h1>
-                        <span v-if="currentMember && activeTab === 'memberDetail'" class="text-xs font-bold text-tealmed-700 bg-tealmed-50 px-2.5 py-1 rounded-full border border-tealmed-100">
-                            {{ calculateAge(currentMember.birthDate) }} anos • {{ currentMember.bloodType || 'Sangue N/A' }}
-                        </span>
+
+                        <!-- Barra de Busca Rápida de Pacientes no Header Superior -->
+                        <div class="relative flex-1">
+                            <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                                <i class="fa-solid fa-magnifying-glass text-xs"></i>
+                            </div>
+                            <input v-model="memberSearchQuery" @focus="if(activeTab !== 'members' && activeTab !== 'dashboard') activeTab = 'members'" type="text" placeholder="Buscar paciente por nome..." class="w-full pl-9 pr-8 py-2 bg-slate-100/80 hover:bg-slate-100 focus:bg-white border border-slate-200/80 focus:border-tealmed-500 rounded-xl text-xs font-semibold text-slate-800 placeholder-slate-400 outline-none transition-all">
+                            <button v-if="memberSearchQuery" @click="memberSearchQuery = ''" class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600">
+                                <i class="fa-solid fa-circle-xmark text-xs"></i>
+                            </button>
+                        </div>
                     </div>
 
                     <!-- Quick Actions Header (Direita) -->
@@ -395,19 +395,33 @@
                             </div>
                         </div>
 
-                        <!-- SEÇÃO DOS PACIENTES COM ACESSO DIRETO -->
+                        <!-- SEÇÃO DOS PACIENTES COM BUSCA INTEGRADA -->
                         <div class="space-y-4">
-                            <div class="flex justify-between items-center">
+                            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
                                 <h3 class="font-extrabold text-slate-900 text-lg flex items-center gap-2">
                                     <i class="fa-solid fa-user-doctor text-tealmed-600"></i> Pacientes da Família
                                 </h3>
-                                <button @click="openMemberModal()" class="text-xs font-bold text-tealmed-700 hover:text-tealmed-800 bg-tealmed-50 hover:bg-tealmed-100 px-3 py-1.5 rounded-xl transition-colors">
-                                    + Novo Paciente
-                                </button>
+                                
+                                <div class="flex items-center gap-3 w-full sm:w-auto">
+                                    <!-- Input de Busca na Home -->
+                                    <div class="relative flex-1 sm:w-60">
+                                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                                            <i class="fa-solid fa-search text-xs"></i>
+                                        </div>
+                                        <input v-model="memberSearchQuery" type="text" placeholder="Filtrar por nome..." class="w-full pl-8 pr-7 py-2 bg-white border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 placeholder-slate-400 outline-none focus:border-tealmed-500 shadow-sm transition-all">
+                                        <button v-if="memberSearchQuery" @click="memberSearchQuery = ''" class="absolute inset-y-0 right-0 pr-2.5 flex items-center text-slate-400 hover:text-slate-600">
+                                            <i class="fa-solid fa-circle-xmark text-xs"></i>
+                                        </button>
+                                    </div>
+                                    <button @click="openMemberModal()" class="text-xs font-bold text-tealmed-700 hover:text-tealmed-800 bg-tealmed-50 hover:bg-tealmed-100 px-3.5 py-2 rounded-xl transition-colors shrink-0">
+                                        + Novo
+                                    </button>
+                                </div>
                             </div>
 
+                            <!-- Grid com Filtro Reativo -->
                             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                                <div v-for="m in members" :key="m.id" @click="openMemberDetail(m)" class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-subtle hover:border-tealmed-400 hover:shadow-lg transition-all cursor-pointer group relative">
+                                <div v-for="m in filteredMembers" :key="m.id" @click="openMemberDetail(m)" class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-subtle hover:border-tealmed-400 hover:shadow-lg transition-all cursor-pointer group relative">
                                     <div class="flex items-center gap-4">
                                         <div class="w-14 h-14 rounded-2xl bg-gradient-to-tr from-slate-100 to-tealmed-50 flex items-center justify-center text-slate-700 font-black text-xl group-hover:from-tealmed-600 group-hover:to-emerald-500 group-hover:text-white transition-all border border-slate-100 shadow-sm">
                                             {{ m.name.charAt(0) }}
@@ -432,6 +446,13 @@
                                             {{ getMemberRecords(m.id).length }} registros
                                         </span>
                                     </div>
+                                </div>
+
+                                <!-- Mensagem Vazia se Busca sem Resultado -->
+                                <div v-if="filteredMembers.length === 0" class="col-span-full bg-white p-8 rounded-2xl border border-slate-200 text-center">
+                                    <i class="fa-solid fa-user-slash text-3xl text-slate-300 mb-2"></i>
+                                    <p class="text-slate-700 font-bold text-sm">Nenhum paciente encontrado para "{{ memberSearchQuery }}"</p>
+                                    <button @click="memberSearchQuery = ''" class="mt-2 text-xs font-bold text-tealmed-700 hover:underline">Limpar busca</button>
                                 </div>
                             </div>
                         </div>
@@ -468,20 +489,26 @@
                         </div>
                     </div>
 
-                    <!-- ================= VIEW 2: PACIENTES LIST ================= -->
+                    <!-- ================= VIEW 2: PACIENTES LIST (COM BUSCA EM DESTAQUE) ================= -->
                     <div v-if="activeTab === 'members'" class="max-w-6xl mx-auto space-y-6 animate-fade">
                         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-5 rounded-2xl border border-slate-200/80 shadow-subtle">
                             <div>
                                 <h2 class="text-xl font-extrabold text-slate-900">Pacientes & Familiares</h2>
-                                <p class="text-xs text-slate-500 mt-0.5">Gerencie os prontuários individuais, exames e sinais vitais.</p>
+                                <p class="text-xs text-slate-500 mt-0.5">
+                                    {{ memberSearchQuery ? `Mostrando ${filteredMembers.length} de ${totalMembers} pacientes` : 'Gerencie os prontuários individuais, exames e sinais vitais.' }}
+                                </p>
                             </div>
                             
+                            <!-- Barra de Busca de Pacientes -->
                             <div class="flex w-full sm:w-auto gap-3">
-                                <div class="relative flex-1 sm:w-64">
+                                <div class="relative flex-1 sm:w-72">
                                     <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
                                         <i class="fa-solid fa-search"></i>
                                     </div>
-                                    <input v-model="memberSearchQuery" type="text" placeholder="Buscar por nome..." class="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-tealmed-500 focus:bg-white text-xs font-semibold text-slate-800 transition-all">
+                                    <input v-model="memberSearchQuery" type="text" placeholder="Buscar paciente por nome..." class="w-full pl-10 pr-9 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-tealmed-500 focus:bg-white text-xs font-semibold text-slate-800 transition-all shadow-inner">
+                                    <button v-if="memberSearchQuery" @click="memberSearchQuery = ''" class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600" title="Limpar busca">
+                                        <i class="fa-solid fa-circle-xmark text-sm"></i>
+                                    </button>
                                 </div>
                                 <button @click="openMemberModal()" class="shrink-0 bg-tealmed-600 hover:bg-tealmed-700 text-white px-4 py-2.5 rounded-xl flex items-center gap-2 text-xs font-bold shadow-md shadow-tealmed-600/20 transition-all">
                                     <i class="fa-solid fa-user-plus"></i> <span>Novo Paciente</span>
@@ -524,6 +551,18 @@
                                 <div class="absolute top-4 right-4 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                                     <button @click.stop="openMemberModal(member)" class="w-8 h-8 rounded-xl bg-slate-100 hover:bg-tealmed-50 text-slate-400 hover:text-tealmed-600 flex items-center justify-center transition-colors"><i class="fa-solid fa-pen text-xs"></i></button>
                                 </div>
+                            </div>
+
+                            <!-- Mensagem Vazia se Busca sem Resultado -->
+                            <div v-if="filteredMembers.length === 0" class="col-span-full bg-white p-12 rounded-3xl border border-slate-200 text-center">
+                                <div class="w-14 h-14 rounded-2xl bg-slate-100 text-slate-400 flex items-center justify-center mx-auto mb-3 text-2xl">
+                                    <i class="fa-solid fa-user-slash"></i>
+                                </div>
+                                <h4 class="font-extrabold text-slate-800 text-base">Nenhum paciente encontrado</h4>
+                                <p class="text-slate-500 text-xs mt-1">Não encontramos nenhum familiar com o nome "{{ memberSearchQuery }}".</p>
+                                <button @click="memberSearchQuery = ''" class="mt-4 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold px-4 py-2 rounded-xl transition-colors">
+                                    Limpar filtro de busca
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -1667,13 +1706,13 @@
 
                 const filteredMembers = computed(() => {
                     if (!memberSearchQuery.value) return members.value;
-                    const q = memberSearchQuery.value.toLowerCase();
-                    return members.value.filter(m => m.name.toLowerCase().includes(q));
+                    const q = memberSearchQuery.value.trim().toLowerCase();
+                    return members.value.filter(m => m.name && m.name.toLowerCase().includes(q));
                 });
 
                 const filteredTimeline = computed(() => {
                     if (!timelineSearchQuery.value) return records.value;
-                    const q = timelineSearchQuery.value.toLowerCase();
+                    const q = timelineSearchQuery.value.trim().toLowerCase();
                     return records.value.filter(r => 
                         (r.title && r.title.toLowerCase().includes(q)) ||
                         (r.memberName && r.memberName.toLowerCase().includes(q)) ||
@@ -1836,7 +1875,7 @@
 
                     // Registrar Service Worker para PWA
                     if ('serviceWorker' in navigator) {
-                        navigator.serviceWorker.register('./sw.js').catch(err => console.log('SW fail:', err));
+                        navigator.serviceWorker.register('./sw.js?v=3').catch(err => console.log('SW fail:', err));
                     }
                 });
 
@@ -1850,7 +1889,7 @@
                     if (permission === 'granted') {
                         new Notification('Vitalis Pro', {
                             body: 'Notificações de exames e medicamentos ativadas com sucesso!',
-                            icon: './icon.png'
+                            icon: './icon.png?v=3'
                         });
                     }
                 };
@@ -2374,7 +2413,6 @@
                 // ================= HELPERS GERAIS =================
                 const navigateTo = (tab) => {
                     activeTab.value = tab;
-                    memberSearchQuery.value = '';
                     timelineSearchQuery.value = '';
                 };
 

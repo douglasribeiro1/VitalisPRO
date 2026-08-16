@@ -1,4 +1,4 @@
-const CACHE_NAME = 'vitalis-pro-v2';
+const CACHE_NAME = 'vitalis-pro-v3';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
@@ -10,7 +10,7 @@ const ASSETS_TO_CACHE = [
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      console.log('Vitalis SW: Caching core assets');
+      console.log('Vitalis SW v3: Caching core assets');
       return cache.addAll(ASSETS_TO_CACHE).catch(err => console.warn('Cache error:', err));
     })
   );
@@ -36,13 +36,14 @@ self.addEventListener('fetch', (event) => {
   );
 });
 
-// Limpeza de caches antigos
+// Limpeza imediata de caches antigos para forçar atualização do ícone e arquivos
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((cacheNames) => {
       return Promise.all(
         cacheNames.map((cacheName) => {
           if (cacheName !== CACHE_NAME) {
+            console.log('Vitalis SW: Deleting old cache', cacheName);
             return caches.delete(cacheName);
           }
         })
