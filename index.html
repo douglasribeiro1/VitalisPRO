@@ -6,7 +6,7 @@
     <title>Vitalis Pro - Prontuário & Saúde Familiar</title>
     
     <!-- PWA Config -->
-    <link rel="manifest" href="manifest.json?v=3">
+    <link rel="manifest" href="manifest.json?v=4">
     <meta name="theme-color" content="#0d9488">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -14,8 +14,8 @@
     <meta name="apple-mobile-web-app-title" content="Vitalis Pro">
     
     <!-- Ícone Moderno com Cache Busting -->
-    <link rel="icon" type="image/png" href="./icon.png?v=3">
-    <link rel="apple-touch-icon" href="./icon.png?v=3">
+    <link rel="icon" type="image/png" sizes="512x512" href="./icon.png?v=4">
+    <link rel="apple-touch-icon" sizes="192x192" href="./icon-192.png?v=4">
 
     <!-- Google Fonts & FontAwesome -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -72,7 +72,7 @@
 
     <style>
         body { 
-            background-color: #f8fafc; 
+            background-color: #f1f5f9; 
             -webkit-tap-highlight-color: transparent; 
         }
         [v-cloak] { display: none !important; }
@@ -88,6 +88,12 @@
         
         .pb-safe { padding-bottom: max(env(safe-area-inset-bottom), 1rem); }
         .pt-safe { padding-top: max(env(safe-area-inset-top), 1rem); }
+
+        /* Componentes visuais compartilhados */
+        .vp-card { background: #fff; border: 1px solid rgba(226, 232, 240, 0.8); border-radius: 1.25rem; box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04), 0 10px 30px -18px rgba(15, 23, 42, 0.18); }
+        .vp-hero { background: linear-gradient(135deg, #0f766e 0%, #0d9488 50%, #059669 100%); }
+        .animate-fade { animation: vp-fade 0.35s ease both; }
+        @keyframes vp-fade { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
 
         /* Estilos SOAP */
         .soap-section h5 { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.06em; font-weight: 700; margin-bottom: 0.35rem; }
@@ -119,7 +125,7 @@
 
             <div class="w-full max-w-md bg-white/10 backdrop-blur-xl border border-white/20 p-8 md:p-10 rounded-3xl shadow-2xl relative z-10 text-center animate-fade">
                 <div class="w-24 h-24 rounded-3xl p-1 bg-gradient-to-tr from-tealmed-400 to-emerald-400 mx-auto mb-6 shadow-glow-teal flex items-center justify-center overflow-hidden">
-                    <img src="./icon.png?v=3" alt="Logo Vitalis Pro" class="w-full h-full object-cover rounded-[22px]">
+                    <img src="./icon-192.png?v=4" alt="Logo Vitalis Pro" class="w-full h-full object-cover rounded-[22px]">
                 </div>
                 
                 <h1 class="text-3xl font-extrabold text-white tracking-tight">Vitalis Pro</h1>
@@ -156,7 +162,7 @@
                 <div class="p-6 border-b border-slate-100 flex items-center justify-between">
                     <div class="flex items-center gap-3">
                         <div class="w-11 h-11 rounded-2xl p-0.5 bg-gradient-to-tr from-tealmed-600 to-emerald-500 shadow-md shadow-tealmed-600/20 flex items-center justify-center overflow-hidden">
-                            <img src="./icon.png?v=3" class="w-full h-full object-cover rounded-[14px]">
+                            <img src="./icon-192.png?v=4" class="w-full h-full object-cover rounded-[14px]">
                         </div>
                         <div>
                             <span class="font-extrabold text-lg text-slate-900 tracking-tight leading-tight block">Vitalis Pro</span>
@@ -250,7 +256,7 @@
                     <!-- Mobile Logo & Brand -->
                     <div class="flex md:hidden items-center gap-2.5">
                         <div class="w-9 h-9 bg-tealmed-600 rounded-xl flex items-center justify-center text-white overflow-hidden shadow-sm">
-                            <img src="./icon.png?v=3" class="w-full h-full object-cover">
+                            <img src="./icon-192.png?v=4" class="w-full h-full object-cover">
                         </div>
                         <span class="font-extrabold text-slate-900 text-base tracking-tight">Vitalis Pro</span>
                     </div>
@@ -307,7 +313,7 @@
                     <div v-if="activeTab === 'dashboard'" class="max-w-6xl mx-auto space-y-6 animate-fade">
                         
                         <!-- BANNER DE BOAS VINDAS & ALERTA PROATIVO -->
-                        <div class="bg-gradient-to-br from-slate-900 via-slate-800 to-tealmed-950 text-white p-6 md:p-8 rounded-3xl shadow-xl relative overflow-hidden">
+                        <div class="vp-hero text-white p-6 md:p-8 rounded-3xl shadow-xl relative overflow-hidden">
                             <div class="absolute -right-20 -top-20 w-80 h-80 bg-tealmed-500/20 rounded-full blur-3xl pointer-events-none"></div>
                             
                             <div class="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
@@ -351,6 +357,51 @@
                                 </div>
                             </div>
                         </div>
+
+                        <!-- AVISO PARA ATIVAR NOTIFICAÇÕES -->
+                        <div v-if="notificationStatus !== 'granted'" class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-amber-50 border border-amber-200 p-4 rounded-2xl">
+                            <div class="flex items-start gap-3">
+                                <div class="w-9 h-9 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center shrink-0"><i class="fa-solid fa-bell"></i></div>
+                                <p class="text-xs font-semibold text-amber-900 leading-relaxed">
+                                    <span v-if="!notificationSupported">Para receber avisos no celular, adicione o Vitalis à tela de início.</span>
+                                    <span v-else-if="notificationStatus === 'denied'">Os avisos estão bloqueados neste navegador. Libere as notificações nas configurações do site.</span>
+                                    <span v-else>Ative os avisos para receber alertas de remédios e consultas, mesmo com o app em segundo plano.</span>
+                                </p>
+                            </div>
+                            <button v-if="notificationSupported && notificationStatus !== 'denied'" @click="requestNotificationPermission" class="shrink-0 bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold px-4 py-2 rounded-xl shadow-sm transition-colors">Ativar avisos</button>
+                        </div>
+
+                        <!-- AGENDA DE HOJE -->
+                        <section class="vp-card p-5 md:p-6">
+                            <div class="flex items-start justify-between gap-3 mb-4">
+                                <div>
+                                    <h3 class="font-extrabold text-slate-900 text-lg flex items-center gap-2"><i class="fa-regular fa-calendar-check text-tealmed-600"></i> Agenda de Hoje</h3>
+                                    <p class="text-xs text-slate-500 capitalize mt-0.5">{{ todayLabel }}</p>
+                                </div>
+                                <span v-if="todayDosesTotal > 0" class="text-xs font-bold px-3 py-1 rounded-full whitespace-nowrap" :class="todayDosesDone === todayDosesTotal ? 'bg-emerald-50 text-emerald-700' : 'bg-tealmed-50 text-tealmed-700'">{{ todayDosesDone }}/{{ todayDosesTotal }} doses</span>
+                            </div>
+
+                            <div v-if="todayAgenda.length" class="divide-y divide-slate-100">
+                                <div v-for="item in todayAgenda" :key="item.id" class="py-3 flex items-center gap-3">
+                                    <span class="w-12 shrink-0 text-sm font-extrabold tabular-nums" :class="item.late ? 'text-amber-600' : 'text-slate-700'">{{ item.time }}</span>
+                                    <button v-if="item.kind === 'dose'" @click="toggleDose(item.med, item.slotTime)" :class="item.done ? 'bg-emerald-500 text-white' : 'bg-slate-100 text-slate-500 hover:bg-tealmed-50 hover:text-tealmed-700'" class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 transition-all active:scale-90" :title="item.done ? 'Desmarcar dose' : 'Marcar como tomado'">
+                                        <i :class="item.done ? 'fa-solid fa-check' : 'fa-solid fa-pills'"></i>
+                                    </button>
+                                    <div v-else class="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center shrink-0"><i class="fa-regular fa-bell"></i></div>
+                                    <button @click="item.kind === 'record' && openRecordModal(item.data)" class="flex-1 min-w-0 text-left">
+                                        <p class="text-sm font-bold truncate" :class="item.done ? 'line-through text-slate-400' : 'text-slate-900'">{{ item.title }}</p>
+                                        <p class="text-xs text-slate-500 truncate">{{ item.subtitle }}</p>
+                                    </button>
+                                    <span v-if="item.kind === 'dose'" class="text-[11px] font-bold shrink-0" :class="item.done ? 'text-emerald-600' : item.late ? 'text-amber-600' : 'text-slate-400'">{{ item.done ? 'Tomado' : item.late ? 'Atrasado' : 'Pendente' }}</span>
+                                </div>
+                            </div>
+
+                            <div v-else class="py-8 text-center">
+                                <div class="w-12 h-12 rounded-2xl bg-slate-100 text-slate-400 flex items-center justify-center mx-auto mb-3 text-xl"><i class="fa-regular fa-calendar"></i></div>
+                                <p class="text-sm font-bold text-slate-700">Nada agendado para hoje</p>
+                                <p class="text-xs text-slate-400 mt-1">Doses de remédios e lembretes aparecem aqui automaticamente.</p>
+                            </div>
+                        </section>
 
                         <!-- CARDS DE ESTATÍSTICAS -->
                         <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
@@ -480,6 +531,7 @@
                                         </div>
                                     </div>
                                     <div class="flex items-center gap-1">
+                                        <button @click.stop="downloadIcs(reminder)" class="p-2 rounded-xl text-slate-400 hover:text-tealmed-600 hover:bg-tealmed-50 transition-all" title="Baixar para o calendário do celular"><i class="fa-solid fa-calendar-arrow-down text-base"></i></button>
                                         <button @click.stop="addToCalendar(reminder)" class="p-2 rounded-xl text-slate-400 hover:text-tealmed-600 hover:bg-tealmed-50 transition-all" title="Adicionar ao Google Calendar">
                                             <i class="fa-solid fa-calendar-plus text-base"></i>
                                         </button>
@@ -571,13 +623,13 @@
                     <div v-if="activeTab === 'memberDetail' && currentMember" class="max-w-6xl mx-auto space-y-6 animate-fade">
                         
                         <!-- CARD PRINCIPAL DO PACIENTE -->
-                        <div class="bg-gradient-to-br from-slate-900 via-slate-800 to-tealmed-950 text-white rounded-3xl p-6 md:p-8 shadow-xl relative overflow-hidden">
+                        <div class="vp-hero text-white rounded-3xl p-6 md:p-8 shadow-xl relative overflow-hidden">
                             <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
                                 <div class="flex items-center gap-5">
                                     <button @click="activeTab = 'members'" class="w-10 h-10 rounded-2xl bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-colors" title="Voltar para a lista">
                                         <i class="fa-solid fa-arrow-left"></i>
                                     </button>
-                                    <div class="w-18 h-18 md:w-20 md:h-20 rounded-3xl bg-gradient-to-tr from-tealmed-400 to-emerald-400 p-1 shadow-glow-teal flex items-center justify-center text-slate-900 text-3xl font-black">
+                                    <div class="w-16 h-16 md:w-20 md:h-20 rounded-3xl bg-gradient-to-tr from-tealmed-400 to-emerald-400 p-1 shadow-glow-teal flex items-center justify-center text-slate-900 text-3xl font-black">
                                         <span class="w-full h-full bg-slate-900 text-tealmed-300 rounded-[20px] flex items-center justify-center">
                                             {{ currentMember.name.charAt(0) }}
                                         </span>
@@ -798,6 +850,12 @@
 
                                         <h4 class="font-extrabold text-slate-900 text-base">{{ med.name }}</h4>
                                         <p class="text-xs text-slate-600 mt-1 font-medium"><i class="fa-regular fa-clock text-tealmed-600 mr-1"></i> Horários: {{ med.times || '08:00' }}</p>
+                                    <div v-if="doseSlots(med).length" class="mt-3 flex flex-wrap items-center gap-1.5">
+                                        <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 mr-1">Hoje</span>
+                                        <button v-for="slot in doseSlots(med)" :key="slot.time" @click="toggleDose(med, slot.time)" :class="slot.taken ? 'bg-emerald-500 border-emerald-500 text-white' : slot.late ? 'bg-amber-50 border-amber-300 text-amber-800' : 'bg-white border-slate-200 text-slate-600 hover:border-tealmed-400'" class="px-2.5 py-1 rounded-lg border text-[11px] font-bold flex items-center gap-1.5 transition-all active:scale-95">
+                                            <i :class="slot.taken ? 'fa-solid fa-circle-check' : 'fa-regular fa-circle'"></i>{{ slot.time }}
+                                        </button>
+                                    </div>
                                         <p v-if="med.instructions" class="text-xs text-slate-500 mt-1 italic">{{ med.instructions }}</p>
 
                                         <!-- Barra de Estoque -->
@@ -988,6 +1046,12 @@
 
                                     <h4 class="font-extrabold text-slate-900 text-base mt-2">{{ med.name }}</h4>
                                     <p class="text-xs text-slate-600 mt-1 font-medium"><i class="fa-regular fa-clock text-tealmed-600 mr-1"></i> Horários: {{ med.times }}</p>
+                                  <div v-if="doseSlots(med).length" class="mt-3 flex flex-wrap items-center gap-1.5">
+                                      <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 mr-1">Hoje</span>
+                                      <button v-for="slot in doseSlots(med)" :key="slot.time" @click="toggleDose(med, slot.time)" :class="slot.taken ? 'bg-emerald-500 border-emerald-500 text-white' : slot.late ? 'bg-amber-50 border-amber-300 text-amber-800' : 'bg-white border-slate-200 text-slate-600 hover:border-tealmed-400'" class="px-2.5 py-1 rounded-lg border text-[11px] font-bold flex items-center gap-1.5 transition-all active:scale-95">
+                                          <i :class="slot.taken ? 'fa-solid fa-circle-check' : 'fa-regular fa-circle'"></i>{{ slot.time }}
+                                      </button>
+                                  </div>
                                     
                                     <div v-if="med.stockTotal" class="mt-4 pt-3 border-t border-slate-100">
                                         <div class="flex justify-between text-xs font-bold mb-1.5">
@@ -1074,7 +1138,7 @@
 
                     <!-- Botão Central + -->
                     <div class="relative -top-5">
-                        <button @click="openRecordModal()" class="w-13 h-13 p-3.5 bg-gradient-to-tr from-slate-900 to-tealmed-900 rounded-full flex items-center justify-center text-white shadow-xl shadow-tealmed-950/30 active:scale-90 transition-transform">
+                        <button @click="openRecordModal()" class="w-14 h-14 p-3.5 bg-gradient-to-tr from-slate-900 to-tealmed-900 rounded-full flex items-center justify-center text-white shadow-xl shadow-tealmed-950/30 active:scale-90 transition-transform">
                             <i class="fa-solid fa-plus text-lg"></i>
                         </button>
                     </div>
@@ -1089,6 +1153,14 @@
                 </nav>
             </main>
         </div>
+
+        <!-- TOAST DE FEEDBACK -->
+        <transition name="fade">
+            <div v-if="toast" class="fixed bottom-24 md:bottom-8 left-1/2 -translate-x-1/2 z-[70] max-w-[90vw] px-4 py-3 rounded-2xl shadow-xl text-xs font-bold text-white flex items-center gap-2" :class="toast.type === 'error' ? 'bg-red-600' : 'bg-slate-900'">
+                <i :class="toast.type === 'error' ? 'fa-solid fa-circle-exclamation' : 'fa-solid fa-circle-check text-emerald-400'"></i>
+                <span>{{ toast.message }}</span>
+            </div>
+        </transition>
 
         <!-- ================= MODAIS & DRAWERS ================= -->
 
@@ -1539,6 +1611,15 @@
                             <label class="block text-xs font-bold text-slate-600 uppercase mb-1.5">Data e Horário</label>
                             <input v-model="recordForm.date" type="datetime-local" class="w-full p-3.5 bg-slate-50 rounded-xl border border-slate-200 focus:border-tealmed-500 focus:bg-white outline-none text-xs font-bold text-slate-800 transition-all">
                         </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-600 uppercase mb-1.5">Avisar antes</label>
+                            <select v-model.number="recordForm.remindBefore" class="w-full p-3.5 bg-slate-50 rounded-xl border border-slate-200 focus:border-tealmed-500 focus:bg-white outline-none text-xs font-bold text-slate-800 transition-all">
+                                <option :value="0">Na hora</option>
+                                <option :value="15">15 minutos antes</option>
+                                <option :value="60">1 hora antes</option>
+                                <option :value="1440">1 dia antes</option>
+                            </select>
+                        </div>
                     </div>
 
                     <div>
@@ -1630,7 +1711,7 @@
         import { createApp, ref, computed, onMounted, nextTick, watch } from 'https://unpkg.com/vue@3/dist/vue.esm-browser.js';
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
         import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
-        import { getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, query, onSnapshot, orderBy, serverTimestamp, enableIndexedDbPersistence } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+        import { getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, query, onSnapshot, orderBy, serverTimestamp, enableIndexedDbPersistence, arrayUnion, arrayRemove } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
 
         // --- FIREBASE CONFIG ---
         const firebaseConfig = {
@@ -1683,7 +1764,7 @@
 
                 const showRecordModal = ref(false);
                 const isEditingRecord = ref(false);
-                const recordForm = ref({ id: null, memberId: '', category: 'Lembrete', date: '', title: '', details: '' });
+                const recordForm = ref({ id: null, memberId: '', category: 'Lembrete', date: '', title: '', details: '', remindBefore: 15 });
 
                 const showPeriodicExamModal = ref(false);
                 const isEditingExam = ref(false);
@@ -1700,6 +1781,189 @@
                 const consultationForm = ref({ memberId: '', date: '', anamnesis: '', exam: '', diagnosis: '', plan: '' });
 
                 let vitalsChartInstance = null;
+
+                const clock = ref(Date.now());
+                const toast = ref(null);
+
+                // ================= DATAS, DOSES & LEMBRETES =================
+                const pad2 = (n) => String(n).padStart(2, '0');
+                // Chave de data no fuso local (YYYY-MM-DD), usada para o controle diário de doses
+                const localDateKey = (d = new Date()) => `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`;
+                const localDateFromKey = (key) => {
+                    const [y, m, d] = key.split('-').map(Number);
+                    return new Date(y, m - 1, d);
+                };
+                // Extrai horários "08:00, 20:00" normalizando para HH:MM, sem repetição e em ordem
+                const parseTimes = (str) => [...new Set(
+                    ((str || '').match(/\b([01]?\d|2[0-3]):[0-5]\d\b/g) || []).map(t => t.padStart(5, '0'))
+                )].sort();
+                const timeToDate = (hhmm) => {
+                    const [h, m] = hhmm.split(':').map(Number);
+                    const d = new Date();
+                    d.setHours(h, m, 0, 0);
+                    return d;
+                };
+                const toInputDateTime = (iso) => {
+                    const d = new Date(iso);
+                    d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
+                    return d.toISOString().slice(0, 16);
+                };
+                const isTakenToday = (med, time) => ((med.takenLog || {})[localDateKey()] || []).includes(time);
+
+                const doseSlots = (med) => {
+                    const now = clock.value;
+                    return parseTimes(med.times).map(time => ({
+                        time,
+                        taken: isTakenToday(med, time),
+                        late: !isTakenToday(med, time) && now > timeToDate(time).getTime() + 60 * 60000
+                    }));
+                };
+
+                const toggleDose = async (med, time) => {
+                    const taken = isTakenToday(med, time);
+                    try {
+                        await updateDoc(doc(db, 'families', FAMILY_SHARED_ID, 'medications', med.id), {
+                            [`takenLog.${localDateKey()}`]: taken ? arrayRemove(time) : arrayUnion(time),
+                            updatedAt: serverTimestamp()
+                        });
+                        showToast(taken ? `Dose das ${time} desmarcada.` : `${med.name} marcado como tomado às ${time}.`);
+                    } catch (e) {
+                        showToast('Não foi possível atualizar a dose.', 'error');
+                    }
+                };
+
+                let toastTimer = null;
+                const showToast = (message, type = 'success') => {
+                    toast.value = { message, type };
+                    clearTimeout(toastTimer);
+                    toastTimer = setTimeout(() => { toast.value = null; }, 3000);
+                };
+
+                // Notificações já enviadas, guardadas por aparelho para não repetir o mesmo aviso
+                const REMINDER_STORAGE_KEY = 'vitalis.notificacoes.enviadas';
+                const readSentReminders = () => {
+                    try { return JSON.parse(localStorage.getItem(REMINDER_STORAGE_KEY)) || {}; } catch (e) { return {}; }
+                };
+                const writeSentReminders = (map) => {
+                    try { localStorage.setItem(REMINDER_STORAGE_KEY, JSON.stringify(map)); } catch (e) { /* armazenamento indisponível */ }
+                };
+
+                const sendSystemNotification = async (title, body, tag) => {
+                    const options = { body, tag, icon: './icon-192.png?v=4', badge: './icon-192.png?v=4' };
+                    try {
+                        const reg = navigator.serviceWorker && await navigator.serviceWorker.getRegistration();
+                        if (reg) { await reg.showNotification(title, options); return; }
+                    } catch (e) { /* cai no fallback abaixo */ }
+                    new Notification(title, options);
+                };
+
+                // Motor de lembretes: roda a cada minuto enquanto o app estiver aberto
+                const checkReminders = () => {
+                    if (!user.value) return;
+                    const now = Date.now();
+                    clock.value = now;
+                    if (!('Notification' in window) || Notification.permission !== 'granted') return;
+
+                    const sent = readSentReminders();
+                    const todayKey = localDateKey();
+                    let changed = false;
+
+                    const fire = (key, title, body) => {
+                        if (sent[key]) return;
+                        sent[key] = now;
+                        changed = true;
+                        sendSystemNotification(title, body, key);
+                    };
+
+                    // 1. Lembretes e consultas, respeitando a antecedência escolhida
+                    records.value.forEach(r => {
+                        if (!['Lembrete', 'Consulta'].includes(r.category) || !r.date) return;
+                        const at = new Date(r.date).getTime();
+                        const leadMs = (Number(r.remindBefore) || 0) * 60000;
+                        if (now < at - leadMs || now > at + 2 * 3600000) return;
+                        const when = new Date(r.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                        fire(`rec_${r.id}_${r.date}`, `${r.category}: ${r.title}`, `${r.memberName || 'Família'} • ${leadMs ? 'começa' : 'agora'} às ${when}`);
+                    });
+
+                    // 2. Doses de medicamentos no horário e ainda não marcadas como tomadas
+                    medications.value.forEach(med => {
+                        parseTimes(med.times).forEach(time => {
+                            const at = timeToDate(time).getTime();
+                            if (now < at || now > at + 2 * 3600000 || isTakenToday(med, time)) return;
+                            fire(`dose_${med.id}_${todayKey}_${time}`, `Hora do remédio: ${med.name}`, `${med.memberName || 'Família'} • ${med.dosage || 'Dose'} às ${time}. Toque para marcar.`);
+                        });
+                    });
+
+                    // 3. Exames: aviso 15 dias antes e alerta diário quando vencidos ou vencendo hoje
+                    const todayStart = localDateFromKey(todayKey);
+                    periodicExams.value.forEach(exam => {
+                        if (!exam.nextDueDate) return;
+                        const daysLeft = Math.round((localDateFromKey(exam.nextDueDate) - todayStart) / 86400000);
+                        if (daysLeft > 15) return;
+                        if (daysLeft <= 0) {
+                            fire(`exam_${exam.id}_${todayKey}`, daysLeft < 0 ? `Exame atrasado: ${exam.title}` : `Exame vence hoje: ${exam.title}`, `${exam.memberName || 'Família'} • Solicite um novo pedido médico.`);
+                        } else {
+                            fire(`exam_aviso_${exam.id}_${exam.nextDueDate}`, `Exame a vencer: ${exam.title}`, `${exam.memberName || 'Família'} • vence em ${daysLeft} dias.`);
+                        }
+                    });
+
+                    // Limpa avisos com mais de 3 dias para o registro não crescer
+                    const cutoff = now - 3 * 86400000;
+                    Object.keys(sent).forEach(k => {
+                        if (sent[k] < cutoff) { delete sent[k]; changed = true; }
+                    });
+                    if (changed) writeSentReminders(sent);
+                };
+
+                let reminderTimer = null;
+                const startReminderLoop = () => {
+                    if (reminderTimer) return;
+                    checkReminders();
+                    reminderTimer = setInterval(checkReminders, 60 * 1000);
+                    document.addEventListener('visibilitychange', () => { if (!document.hidden) checkReminders(); });
+                };
+
+                // Exporta o lembrete como .ics: abre no calendário nativo do celular com alarme
+                const icsEscape = (text) => String(text || '')
+                    .replace(/\\/g, '\\\\').replace(/;/g, '\;').replace(/,/g, '\\,').replace(/\r?\n/g, '\\n');
+                const formatIcsDate = (d) => d.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
+
+                const downloadIcs = (r) => {
+                    const start = new Date(r.date);
+                    const end = new Date(start.getTime() + 60 * 60000);
+                    const leadMinutes = Number(r.remindBefore) || 0;
+                    const lines = [
+                        'BEGIN:VCALENDAR',
+                        'VERSION:2.0',
+                        'PRODID:-//Vitalis Pro//Prontuario Familiar//PT-BR',
+                        'CALSCALE:GREGORIAN',
+                        'BEGIN:VEVENT',
+                        `UID:${r.id || Date.now()}@vitalis-pro`,
+                        `DTSTAMP:${formatIcsDate(new Date())}`,
+                        `DTSTART:${formatIcsDate(start)}`,
+                        `DTEND:${formatIcsDate(end)}`,
+                        `SUMMARY:${icsEscape(`[${r.memberName || 'Vitalis'}] ${r.title}`)}`,
+                        `DESCRIPTION:${icsEscape(r.details)}`,
+                        'BEGIN:VALARM',
+                        'ACTION:DISPLAY',
+                        `DESCRIPTION:${icsEscape(r.title)}`,
+                        `TRIGGER:-PT${leadMinutes}M`,
+                        'END:VALARM',
+                        'END:VEVENT',
+                        'END:VCALENDAR'
+                    ];
+                    const blob = new Blob([lines.join('\r\n')], { type: 'text/calendar;charset=utf-8' });
+                    const url = URL.createObjectURL(blob);
+                    const fileName = (r.title || 'lembrete').normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^\w]+/g, '-').toLowerCase();
+                    const link = document.createElement('a');
+                    link.href = url;
+                    link.download = `${fileName}.ics`;
+                    document.body.appendChild(link);
+                    link.click();
+                    link.remove();
+                    setTimeout(() => URL.revokeObjectURL(url), 1000);
+                    showToast('Agenda baixada. Abra o arquivo para salvar no calendário do celular.');
+                };
 
                 // ================= COMPUTEDS =================
                 const totalMembers = computed(() => members.value.length);
@@ -1844,6 +2108,56 @@
 
                 const allAlertsCount = computed(() => allAlertsList.value.length);
 
+                // Agenda do dia: doses de medicamentos e lembretes/consultas de hoje, em ordem de horário
+                const notificationSupported = 'Notification' in window;
+                const todayLabel = new Date().toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' });
+
+                const todayAgenda = computed(() => {
+                    const now = clock.value;
+                    const todayKey = localDateKey();
+                    const items = [];
+
+                    medications.value.forEach(med => {
+                        parseTimes(med.times).forEach(time => {
+                            const at = timeToDate(time).getTime();
+                            const done = isTakenToday(med, time);
+                            items.push({
+                                id: `dose_${med.id}_${time}`,
+                                kind: 'dose',
+                                at,
+                                time,
+                                title: med.name,
+                                subtitle: `${med.memberName || ''} • ${med.dosage || 'Uso contínuo'}`,
+                                done,
+                                late: !done && now > at + 60 * 60000,
+                                med,
+                                slotTime: time
+                            });
+                        });
+                    });
+
+                    records.value.forEach(r => {
+                        if (!['Lembrete', 'Consulta'].includes(r.category) || !r.date) return;
+                        const d = new Date(r.date);
+                        if (localDateKey(d) !== todayKey) return;
+                        items.push({
+                            id: `rec_${r.id}`,
+                            kind: 'record',
+                            at: d.getTime(),
+                            time: d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                            title: r.title,
+                            subtitle: r.memberName || '',
+                            done: false,
+                            data: r
+                        });
+                    });
+
+                    return items.sort((a, b) => a.at - b.at);
+                });
+
+                const todayDosesTotal = computed(() => todayAgenda.value.filter(i => i.kind === 'dose').length);
+                const todayDosesDone = computed(() => todayAgenda.value.filter(i => i.kind === 'dose' && i.done).length);
+
                 // ================= AUTH =================
                 const loginWithGoogle = async () => {
                     loading.value = true; errorMsg.value = '';
@@ -1868,6 +2182,7 @@
                         if (u && ALLOWED_EMAILS.includes(u.email)) {
                             user.value = u;
                             setupListeners();
+                            startReminderLoop();
                         } else {
                             user.value = null;
                         }
@@ -1875,7 +2190,7 @@
 
                     // Registrar Service Worker para PWA
                     if ('serviceWorker' in navigator) {
-                        navigator.serviceWorker.register('./sw.js?v=3').catch(err => console.log('SW fail:', err));
+                        navigator.serviceWorker.register('./sw.js?v=4').catch(err => console.log('SW fail:', err));
                     }
                 });
 
@@ -1889,7 +2204,7 @@
                     if (permission === 'granted') {
                         new Notification('Vitalis Pro', {
                             body: 'Notificações de exames e medicamentos ativadas com sucesso!',
-                            icon: './icon.png?v=3'
+                            icon: './icon-192.png?v=4'
                         });
                     }
                 };
@@ -2283,7 +2598,7 @@
                 const openRecordModal = (record = null, preSelectedMemberId = null) => {
                     if (record) {
                         isEditingRecord.value = true;
-                        recordForm.value = { ...record };
+                        recordForm.value = { remindBefore: 15, ...record, date: toInputDateTime(record.date) };
                     } else {
                         isEditingRecord.value = false;
                         const now = new Date();
@@ -2292,6 +2607,7 @@
                             id: null,
                             memberId: preSelectedMemberId || (currentMember.value ? currentMember.value.id : ''),
                             category: 'Lembrete',
+                            remindBefore: 15,
                             date: now.toISOString().slice(0, 16),
                             title: '',
                             details: ''
@@ -2481,7 +2797,9 @@
                     openConsultationModal, saveConsultation,
                     generateMedicalReport, printReport, openSosModal, handleAlertAction, addToCalendar,
                     getMemberRecords, getMemberExams, getMemberOverdueExams, getMemberVitals, getMemberMeds,
-                    calculateAge, formatDate, formatDateOnly, getCategoryColor, getCategoryIcon
+                    calculateAge, formatDate, formatDateOnly, getCategoryColor, getCategoryIcon,
+                    todayAgenda, todayDosesTotal, todayDosesDone, todayLabel, notificationSupported,
+                    doseSlots, toggleDose, downloadIcs, toast
                 };
             }
         }).mount('#app');
