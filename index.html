@@ -611,10 +611,8 @@
                                     <button @click="activeTab = 'members'" class="w-10 h-10 rounded-2xl bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-colors" title="Voltar para a lista">
                                         <i class="fa-solid fa-arrow-left"></i>
                                     </button>
-                                    <div class="w-16 h-16 md:w-20 md:h-20 rounded-3xl bg-gradient-to-tr from-tealmed-400 to-emerald-400 p-1 shadow-glow-teal flex items-center justify-center text-slate-900 text-3xl font-black">
-                                        <span class="w-full h-full bg-slate-900 text-tealmed-300 rounded-[20px] flex items-center justify-center">
-                                            {{ currentMember.name.charAt(0) }}
-                                        </span>
+                                    <div class="w-14 h-14 md:w-16 md:h-16 rounded-full bg-white/15 border border-white/25 flex items-center justify-center text-white text-xl font-bold flex-none">
+                                        {{ currentMember.name.charAt(0) }}
                                     </div>
                                     <div>
                                         <h2 class="text-2xl md:text-3xl font-black tracking-tight">{{ currentMember.name }}</h2>
@@ -664,29 +662,32 @@
                         <!-- CONTEÚDO DAS SUB-ABAS -->
 
                         <!-- ABA 1: RESUMO CLÍNICO -->
-                        <div v-if="memberTab === 'info'" class="grid grid-cols-1 md:grid-cols-2 gap-6 animate-fade">
-                            <div class="bg-red-50/80 p-6 rounded-3xl border border-red-100 relative overflow-hidden">
-                                <div class="absolute top-0 right-0 p-4 opacity-5"><i class="fa-solid fa-triangle-exclamation text-8xl text-red-600"></i></div>
-                                <h4 class="text-red-700 font-extrabold mb-3 flex items-center gap-2 uppercase text-xs tracking-wider">
-                                    <i class="fa-solid fa-triangle-exclamation text-sm"></i> Alergias Críticas
-                                </h4>
-                                <p class="text-slate-800 font-bold whitespace-pre-line text-base">{{ currentMember.allergies || 'Nenhuma alergia conhecida registrada.' }}</p>
+                        <div v-if="memberTab === 'info'" class="space-y-6 animate-fade">
+                            <!-- Alerta de alergia -->
+                            <div class="rounded-2xl bg-[#B3261E] text-white p-5 shadow-sm">
+                                <div class="text-[11px] font-bold uppercase tracking-wider opacity-90"><i class="fa-solid fa-triangle-exclamation mr-1"></i> Alergias</div>
+                                <p class="font-semibold text-base mt-1 whitespace-pre-line">{{ currentMember.allergies || 'Nenhuma alergia conhecida registrada.' }}</p>
                             </div>
 
-                            <div class="bg-blue-50/80 p-6 rounded-3xl border border-blue-100 relative overflow-hidden">
-                                <div class="absolute top-0 right-0 p-4 opacity-5"><i class="fa-solid fa-heart-circle-bolt text-8xl text-blue-600"></i></div>
-                                <h4 class="text-blue-700 font-extrabold mb-3 flex items-center gap-2 uppercase text-xs tracking-wider">
-                                    <i class="fa-solid fa-notes-medical text-sm"></i> Comorbidades & Histórico
-                                </h4>
-                                <p class="text-slate-800 font-bold whitespace-pre-line text-base">{{ currentMember.comorbidities || 'Nenhuma comorbidade registrada.' }}</p>
+                            <!-- Sinais vitais mais recentes -->
+                            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                <div v-for="c in vitalCards(currentMember.id)" :key="c.label" class="vp-card p-4 border-t-4 border-t-[#1E4FBF]">
+                                    <div class="text-xs font-semibold text-[#1E4FBF]">{{ c.label }}</div>
+                                    <div class="font-mono text-2xl font-medium text-slate-900 mt-1">{{ c.value }}<span class="font-sans text-xs text-slate-500 font-medium ml-1">{{ c.unit }}</span></div>
+                                    <div class="text-xs text-slate-500 mt-2">{{ c.note }}</div>
+                                </div>
                             </div>
 
-                            <div class="bg-emerald-50/80 p-6 rounded-3xl border border-emerald-100 col-span-1 md:col-span-2 relative overflow-hidden">
-                                <div class="absolute top-0 right-0 p-4 opacity-5"><i class="fa-solid fa-pills text-8xl text-emerald-600"></i></div>
-                                <h4 class="text-emerald-700 font-extrabold mb-3 flex items-center gap-2 uppercase text-xs tracking-wider">
-                                    <i class="fa-solid fa-pills text-sm"></i> Medicamentos em Uso Contínuo
-                                </h4>
-                                <p class="text-slate-800 font-bold whitespace-pre-line text-base">{{ currentMember.medications || 'Nenhum medicamento registrado no cadastro.' }}</p>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div class="vp-card p-5 border-t-4 border-t-[#1E4FBF]">
+                                    <h4 class="font-semibold text-slate-900 text-sm mb-3">Comorbidades & histórico</h4>
+                                    <p class="text-sm text-slate-700 whitespace-pre-line leading-relaxed">{{ currentMember.comorbidities || 'Nenhuma comorbidade registrada.' }}</p>
+                                </div>
+
+                                <div class="vp-card p-5 border-t-4 border-t-[#6D3BB0]">
+                                    <h4 class="font-semibold text-slate-900 text-sm mb-3">Medicamentos em uso contínuo</h4>
+                                    <p class="text-sm text-slate-700 whitespace-pre-line leading-relaxed">{{ currentMember.medications || 'Nenhum medicamento registrado no cadastro.' }}</p>
+                                </div>
                             </div>
                         </div>
 
@@ -2749,6 +2750,18 @@
                     return periodicExams.value.filter(e => e.memberId === memberId && e.nextDueDate && new Date(e.nextDueDate) < today);
                 };
                 const getMemberVitals = (memberId) => vitals.value.filter(v => v.memberId === memberId);
+                const getLatestVital = (memberId) => [...getMemberVitals(memberId)].sort((a, b) => new Date(b.date) - new Date(a.date))[0] || null;
+                const vitalCards = (memberId) => {
+                    const v = getLatestVital(memberId) || {};
+                    const note = v.date ? `Aferida em ${formatDate(v.date)}` : 'Nenhuma aferição';
+                    const or = (x) => (x === undefined || x === null || x === '') ? '--' : x;
+                    return [
+                        { label: 'Pressão arterial', value: v.systolic && v.diastolic ? `${v.systolic}/${v.diastolic}` : '--', unit: 'mmHg', note },
+                        { label: 'Glicemia', value: or(v.glucose), unit: 'mg/dL', note },
+                        { label: 'Saturação O₂', value: or(v.spo2), unit: '%', note },
+                        { label: 'Peso', value: or(v.weight), unit: 'kg', note },
+                    ];
+                };
                 const getMemberMeds = (memberId) => medications.value.filter(m => m.memberId === memberId);
 
                 const calculateAge = (d) => d ? Math.floor((Date.now() - new Date(d).getTime()) / (3.15576e+10)) : 0;
@@ -2799,7 +2812,7 @@
                     openRecordModal, saveRecord, deleteRecord,
                     openConsultationModal, saveConsultation,
                     generateMedicalReport, printReport, openSosModal, handleAlertAction, addToCalendar,
-                    getMemberRecords, getMemberExams, getMemberOverdueExams, getMemberVitals, getMemberMeds,
+                    getMemberRecords, getMemberExams, getMemberOverdueExams, getMemberVitals, getLatestVital, vitalCards, getMemberMeds,
                     calculateAge, formatDate, formatDateOnly, getCategoryColor, getCategoryIcon,
                     todayAgenda, todayDosesTotal, todayDosesDone, todayLabel, notificationSupported,
                     doseSlots, toggleDose, downloadIcs, toast
