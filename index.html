@@ -63,7 +63,6 @@
                             900: '#063330',
                             950: '#042322'
                         }
-                        }
                     },
                     boxShadow: {
                         'glow-teal': '0 0 25px -5px rgba(20, 184, 166, 0.3)',
@@ -668,33 +667,19 @@
                             </div>
 
                             <div class="grid grid-cols-1 lg:grid-cols-[minmax(0,1.25fr)_minmax(0,1fr)] gap-4 items-stretch">
-                                <!-- Medicações em uso -->
+                                <!-- Medicações em uso (cadastro clínico, uma por linha) -->
                                 <section class="vp-card p-5 min-w-0">
                                     <div class="flex justify-between items-center mb-3.5">
                                         <h2 class="flex items-center gap-2 font-semibold text-base text-slate-900"><span class="w-2 h-2 rounded-full bg-[#6D3BB0]"></span> Medicações em uso</h2>
-                                        <button @click="memberTab = 'meds'" class="text-sm font-semibold text-tealmed-700 hover:underline">Ver todas</button>
+                                        <button @click="openMemberModal(currentMember)" class="text-sm font-semibold text-tealmed-700 hover:underline">Editar</button>
                                     </div>
-                                    <div class="overflow-x-auto">
-                                        <table class="vp-table">
-                                            <thead>
-                                                <tr class="bg-[#F1EAFA] text-[#6D3BB0]"><th>Medicamento</th><th>Dose</th><th>Horários</th><th>Estoque</th></tr>
-                                            </thead>
-                                            <tbody>
-                                                <tr v-for="med in getMemberMeds(currentMember.id)" :key="med.id">
-                                                    <td class="font-semibold">{{ med.name }}</td>
-                                                    <td class="font-mono">{{ med.dosage || '—' }}</td>
-                                                    <td class="font-mono font-medium text-[#6D3BB0]">{{ med.times || '08:00' }}</td>
-                                                    <td class="font-mono">
-                                                        <span v-if="med.stockTotal" :class="calculatePillsLeft(med) <= 5 ? 'text-[#B3261E] font-semibold' : ''">{{ calculatePillsLeft(med) }} un. · ~{{ calculateDaysLeft(med) }} dias</span>
-                                                        <span v-else class="text-slate-400">—</span>
-                                                    </td>
-                                                </tr>
-                                                <tr v-if="getMemberMeds(currentMember.id).length === 0">
-                                                    <td colspan="4" class="text-center text-slate-500 py-8">Nenhum medicamento cadastrado.</td>
-                                                </tr>
-                                            </tbody>
-                                        </table>
-                                    </div>
+                                    <ol v-if="memberMedLines(currentMember).length" class="divide-y divide-[#EEF1F4]">
+                                        <li v-for="(line, i) in memberMedLines(currentMember)" :key="i" class="py-2.5 flex gap-3 text-sm text-slate-800">
+                                            <span class="font-mono text-xs text-slate-400 pt-0.5">{{ i + 1 }}.</span>
+                                            <span class="font-medium">{{ line }}</span>
+                                        </li>
+                                    </ol>
+                                    <p v-else class="text-sm text-slate-500 py-8 text-center">Nenhum medicamento registrado. Use "Editar" para incluir, um por linha.</p>
                                 </section>
 
                                 <!-- Evolução -->
@@ -913,6 +898,7 @@
                                     <p v-if="record.exam"><b class="inline-block w-5 text-[#6D3BB0]">O:</b> {{ record.exam }}</p>
                                     <p v-if="record.diagnosis"><b class="inline-block w-5 text-[#0B6E69]">A:</b> {{ record.diagnosis }}</p>
                                     <p v-if="record.plan"><b class="inline-block w-5 text-[#137A4B]">P:</b> {{ record.plan }}</p>
+                                    <p v-if="record.vitals && vitalsSummary(record.vitals)" class="font-mono text-xs text-slate-600 pt-2 mt-1 border-t border-[#EEF1F4]">{{ vitalsSummary(record.vitals) }}</p>
                                 </div>
                                 <div v-else class="p-5">
                                     <h3 class="font-semibold text-slate-900">{{ record.title }}</h3>
@@ -1402,7 +1388,7 @@
                     </div>
                     <div>
                         <label class="block text-xs font-bold text-emerald-600 uppercase mb-1.5">Medicamentos Contínuos (Resumo)</label>
-                        <textarea v-model="memberForm.medications" rows="2" placeholder="Losartana 50mg (manhã), Metformina 850mg (almoço)..." class="w-full p-3.5 bg-slate-50 rounded-xl border border-slate-200 focus:border-emerald-500 focus:bg-white outline-none text-xs font-semibold text-slate-800 transition-all"></textarea>
+                        <textarea v-model="memberForm.medications" rows="4" placeholder="Um medicamento por linha:&#10;Losartana 50 mg 1x ao dia&#10;Metformina 850 mg 2x ao dia" class="w-full p-3.5 bg-slate-50 rounded-xl border border-slate-200 focus:border-emerald-500 focus:bg-white outline-none text-xs font-semibold text-slate-800 transition-all"></textarea>
                     </div>
                 </div>
                 <div class="p-4 border-t border-slate-100 bg-slate-50 flex gap-3">
@@ -1668,6 +1654,30 @@
                         <textarea v-model="consultationForm.exam" rows="3" placeholder="PA, ausculta, saturação, achados do exame segmentar ou laboratoriais..." class="w-full p-4 bg-white rounded-2xl border border-slate-200 focus:border-purple-500 outline-none text-xs font-semibold text-slate-800 shadow-sm"></textarea>
                     </div>
 
+                    <!-- Sinais vitais aferidos na consulta (opcionais) -->
+                    <div class="grid grid-cols-2 md:grid-cols-5 gap-3">
+                        <div>
+                            <label class="block text-[10px] font-black uppercase text-slate-500 mb-1">PA sistólica</label>
+                            <input v-model="consultationForm.vitals.systolic" type="number" step="1" inputmode="decimal" placeholder="mmHg" class="w-full p-3 bg-white rounded-xl border border-slate-200 focus:border-purple-500 outline-none text-sm font-semibold text-slate-800">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-black uppercase text-slate-500 mb-1">PA diastólica</label>
+                            <input v-model="consultationForm.vitals.diastolic" type="number" step="1" inputmode="decimal" placeholder="mmHg" class="w-full p-3 bg-white rounded-xl border border-slate-200 focus:border-purple-500 outline-none text-sm font-semibold text-slate-800">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-black uppercase text-slate-500 mb-1">Glicemia</label>
+                            <input v-model="consultationForm.vitals.glucose" type="number" step="1" inputmode="decimal" placeholder="mg/dL" class="w-full p-3 bg-white rounded-xl border border-slate-200 focus:border-purple-500 outline-none text-sm font-semibold text-slate-800">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-black uppercase text-slate-500 mb-1">SpO₂</label>
+                            <input v-model="consultationForm.vitals.spo2" type="number" step="1" inputmode="decimal" placeholder="%" class="w-full p-3 bg-white rounded-xl border border-slate-200 focus:border-purple-500 outline-none text-sm font-semibold text-slate-800">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-black uppercase text-slate-500 mb-1">Peso</label>
+                            <input v-model="consultationForm.vitals.weight" type="number" step="0.1" inputmode="decimal" placeholder="kg" class="w-full p-3 bg-white rounded-xl border border-slate-200 focus:border-purple-500 outline-none text-sm font-semibold text-slate-800">
+                        </div>
+                    </div>
+
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <!-- A: Avaliação -->
                         <div>
@@ -1772,7 +1782,7 @@
                 const medicationForm = ref({ id: null, memberId: '', name: '', dosage: '', times: '08:00', stockTotal: 30, pillsPerDay: 1, boxStartDate: '' });
 
                 const showConsultationModal = ref(false);
-                const consultationForm = ref({ memberId: '', date: '', anamnesis: '', exam: '', diagnosis: '', plan: '' });
+                const consultationForm = ref({ memberId: '', date: '', anamnesis: '', exam: '', diagnosis: '', plan: '', vitals: { systolic: '', diastolic: '', glucose: '', spo2: '', weight: '' } });
 
                 let vitalsChartInstance = null;
 
@@ -2457,7 +2467,7 @@
                     const memberVitalsList = getMemberVitals(currentMember.value.id);
                     if (memberVitalsList.length === 0) return;
 
-                    const labels = memberVitalsList.map(v => formatDateOnly(v.date));
+                    const labels = memberVitalsList.map(v => new Date(v.date).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }));
                     const systolicData = memberVitalsList.map(v => v.systolic || null);
                     const diastolicData = memberVitalsList.map(v => v.diastolic || null);
 
@@ -2653,7 +2663,8 @@
                         anamnesis: '',
                         exam: '',
                         diagnosis: '',
-                        plan: ''
+                        plan: '',
+                        vitals: { systolic: '', diastolic: '', glucose: '', spo2: '', weight: '' }
                     };
                     showConsultationModal.value = true;
                 };
@@ -2663,6 +2674,11 @@
                         alert('Preencha pelo menos um campo da consulta.'); return;
                     }
                     try {
+                        const filled = consultationForm.value.vitals;
+                        const vitals = {};
+                        ['systolic', 'diastolic', 'glucose', 'spo2', 'weight'].forEach(k => {
+                            if (filled[k] !== '' && filled[k] !== null && filled[k] !== undefined) vitals[k] = Number(filled[k]);
+                        });
                         const data = {
                             memberId: consultationForm.value.memberId,
                             memberName: currentMember.value.name,
@@ -2674,6 +2690,7 @@
                             exam: consultationForm.value.exam,
                             diagnosis: consultationForm.value.diagnosis,
                             plan: consultationForm.value.plan,
+                            ...(Object.keys(vitals).length ? { vitals } : {}),
                             createdAt: serverTimestamp()
                         };
 
@@ -2744,16 +2761,27 @@
                     .filter(r => r.category === 'Consulta Clínica')
                     .sort((a, b) => new Date(b.date) - new Date(a.date));
                 const getLatestEvolution = (memberId) => getMemberEvolutions(memberId)[0] || null;
-                const getLatestVital = (memberId) => [...getMemberVitals(memberId)].sort((a, b) => new Date(b.date) - new Date(a.date))[0] || null;
+                const memberMedLines = (m) => (m?.medications || '').split('\n').map(l => l.trim()).filter(Boolean);
+                const vitalSources = (memberId) => [
+                    ...getMemberVitals(memberId),
+                    ...getMemberEvolutions(memberId).filter(r => r.vitals).map(r => ({ ...r.vitals, date: r.date }))
+                ].sort((x, y) => new Date(y.date) - new Date(x.date));
+                const vitalsSummary = (v) => [
+                    v.systolic ? `PA ${v.systolic}/${v.diastolic} mmHg` : null,
+                    v.spo2 ? `SpO₂ ${v.spo2}%` : null,
+                    v.glucose ? `Glicemia ${v.glucose} mg/dL` : null,
+                    v.weight ? `Peso ${v.weight} kg` : null
+                ].filter(Boolean).join(' · ');
                 const vitalCards = (memberId) => {
-                    const v = getLatestVital(memberId) || {};
-                    const note = v.date ? `Aferida em ${formatDate(v.date)}` : 'Nenhuma aferição';
-                    const or = (x) => (x === undefined || x === null || x === '') ? '--' : x;
+                    const sources = vitalSources(memberId);
+                    const pick = (keys) => sources.find(s => keys.every(k => s[k] !== undefined && s[k] !== null && s[k] !== ''));
+                    const when = (src) => src ? `Aferida em ${new Date(src.date).toLocaleDateString('pt-BR')} às ${new Date(src.date).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}` : 'Nenhuma aferição';
+                    const pa = pick(['systolic', 'diastolic']), gl = pick(['glucose']), sp = pick(['spo2']), wt = pick(['weight']);
                     return [
-                        { label: 'Pressão arterial', value: v.systolic && v.diastolic ? `${v.systolic}/${v.diastolic}` : '--', unit: 'mmHg', note },
-                        { label: 'Glicemia', value: or(v.glucose), unit: 'mg/dL', note },
-                        { label: 'Saturação O₂', value: or(v.spo2), unit: '%', note },
-                        { label: 'Peso', value: or(v.weight), unit: 'kg', note },
+                        { label: 'Pressão arterial', value: pa ? `${pa.systolic}/${pa.diastolic}` : '--', unit: 'mmHg', note: when(pa) },
+                        { label: 'Glicemia', value: gl ? gl.glucose : '--', unit: 'mg/dL', note: when(gl) },
+                        { label: 'Saturação O₂', value: sp ? sp.spo2 : '--', unit: '%', note: when(sp) },
+                        { label: 'Peso', value: wt ? wt.weight : '--', unit: 'kg', note: when(wt) },
                     ];
                 };
                 const getMemberMeds = (memberId) => medications.value.filter(m => m.memberId === memberId);
@@ -2806,7 +2834,7 @@
                     openRecordModal, saveRecord, deleteRecord,
                     openConsultationModal, saveConsultation,
                     generateMedicalReport, printReport, openSosModal, handleAlertAction, addToCalendar,
-                    getMemberRecords, getMemberExams, getMemberOverdueExams, getMemberVitals, getLatestVital, vitalCards, getLatestEvolution, getMemberMeds,
+                    getMemberRecords, getMemberExams, getMemberOverdueExams, getMemberVitals, vitalCards, vitalsSummary, getLatestEvolution, memberMedLines, getMemberMeds,
                     calculateAge, formatDate, formatDateOnly, getCategoryColor, getCategoryIcon,
                     todayAgenda, todayDosesTotal, todayDosesDone, todayLabel, notificationSupported,
                     doseSlots, toggleDose, downloadIcs, toast
