@@ -7,7 +7,7 @@
     
     <!-- PWA Config -->
     <link rel="manifest" href="manifest.json?v=4">
-    <meta name="theme-color" content="#0d9488">
+    <meta name="theme-color" content="#0B6E69">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -20,7 +20,7 @@
     <!-- Google Fonts & FontAwesome -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <!-- Tailwind CSS CDN -->
@@ -34,7 +34,8 @@
             theme: {
                 extend: {
                     fontFamily: { 
-                        sans: ['"Plus Jakarta Sans"', 'system-ui', '-apple-system', 'sans-serif'] 
+                        sans: ['"IBM Plex Sans"', 'system-ui', '-apple-system', 'sans-serif'],
+                        mono: ['"IBM Plex Mono"', 'ui-monospace', 'monospace'] 
                     },
                     colors: {
                         medical: { 
@@ -50,13 +51,18 @@
                             900: '#064e3b'
                         },
                         tealmed: {
-                            50: '#f0fdfa',
-                            100: '#ccfbf1',
-                            500: '#14b8a6',
-                            600: '#0d9488',
-                            700: '#0f766e',
-                            800: '#115e59',
-                            900: '#134e4a'
+                            50: '#F0F8F7',
+                            100: '#E3F2F1',
+                            200: '#BFE3DF',
+                            300: '#8FCFC9',
+                            400: '#4FB3AB',
+                            500: '#1F8F88',
+                            600: '#0B6E69',
+                            700: '#095A56',
+                            800: '#074641',
+                            900: '#063330',
+                            950: '#042322'
+                        }
                         }
                     },
                     boxShadow: {
@@ -72,7 +78,7 @@
 
     <style>
         body { 
-            background-color: #f1f5f9; 
+            background-color: #F6F7F9; 
             -webkit-tap-highlight-color: transparent; 
         }
         [v-cloak] { display: none !important; }
@@ -90,8 +96,8 @@
         .pt-safe { padding-top: max(env(safe-area-inset-top), 1rem); }
 
         /* Componentes visuais compartilhados */
-        .vp-card { background: #fff; border: 1px solid rgba(226, 232, 240, 0.8); border-radius: 1.25rem; box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04), 0 10px 30px -18px rgba(15, 23, 42, 0.18); }
-        .vp-hero { background: linear-gradient(135deg, #0f766e 0%, #0d9488 50%, #059669 100%); }
+        .vp-card { background: #fff; border: 1px solid #DDE2E8; border-radius: 0.625rem; box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04), 0 10px 30px -18px rgba(15, 23, 42, 0.18); }
+        .vp-hero { background: linear-gradient(135deg, #095A56 0%, #0B6E69 100%); }
         .animate-fade { animation: vp-fade 0.35s ease both; }
         @keyframes vp-fade { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
 
@@ -249,7 +255,7 @@
             </aside>
 
             <!-- CONTEÚDO PRINCIPAL -->
-            <main class="flex-1 flex flex-col h-full overflow-hidden relative bg-[#f8fafc]">
+            <main class="flex-1 flex flex-col h-full overflow-hidden relative bg-[#F6F7F9]">
                 
                 <!-- TOP HEADER -->
                 <header class="bg-white border-b border-slate-200/80 px-4 md:px-8 py-3.5 flex justify-between items-center z-20 sticky top-0 shadow-sm">
@@ -2404,11 +2410,11 @@
                     const diffDays = Math.ceil((due - today) / (1000 * 60 * 60 * 24));
 
                     if (diffDays < 0) {
-                        return { label: `Atrasado (${Math.abs(diffDays)}d)`, badgeClass: 'bg-red-50 text-red-700 border-red-200', textClass: 'text-red-600' };
+                        return { label: `Atrasado (${Math.abs(diffDays)}d)`, badgeClass: 'bg-[#FCE9E7] text-[#B3261E] border-[#F5C6C1]', textClass: 'text-red-600' };
                     } else if (diffDays <= 30) {
-                        return { label: `Vence em ${diffDays}d`, badgeClass: 'bg-amber-50 text-amber-800 border-amber-200', textClass: 'text-amber-700' };
+                        return { label: `Vence em ${diffDays}d`, badgeClass: 'bg-[#FDF3E1] text-[#9A5B00] border-[#F3D9A8]', textClass: 'text-amber-700' };
                     } else {
-                        return { label: 'Em Dia', badgeClass: 'bg-emerald-50 text-emerald-700 border-emerald-200', textClass: 'text-emerald-700' };
+                        return { label: 'Em Dia', badgeClass: 'bg-[#E6F4EC] text-[#137A4B] border-[#BFE3CF]', textClass: 'text-emerald-700' };
                     }
                 };
 
@@ -2480,8 +2486,8 @@
                                 {
                                     label: 'Sistólica (Máxima)',
                                     data: systolicData,
-                                    borderColor: '#0d9488',
-                                    backgroundColor: 'rgba(13, 148, 136, 0.1)',
+                                    borderColor: '#0B6E69',
+                                    backgroundColor: 'rgba(11, 110, 105, 0.1)',
                                     tension: 0.3,
                                     fill: true,
                                     pointRadius: 4,
@@ -2503,7 +2509,7 @@
                             responsive: true,
                             maintainAspectRatio: false,
                             plugins: {
-                                legend: { position: 'top', labels: { boxWidth: 12, font: { family: 'Plus Jakarta Sans', size: 11, weight: 'bold' } } }
+                                legend: { position: 'top', labels: { boxWidth: 12, font: { family: 'IBM Plex Sans', size: 11, weight: 'bold' } } }
                             },
                             scales: {
                                 y: { min: 50, max: 180, grid: { color: '#f1f5f9' } },
