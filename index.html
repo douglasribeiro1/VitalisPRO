@@ -211,13 +211,7 @@
                         <span v-if="overdueExamsCount > 0" class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-red-100 text-red-700">{{ overdueExamsCount }} atrasados</span>
                     </button>
 
-                    <button @click="navigateTo('medicationsHub')" :class="activeTab === 'medicationsHub' ? 'bg-tealmed-50/80 text-tealmed-800 font-bold shadow-sm shadow-tealmed-500/5' : 'text-slate-600 hover:bg-slate-50 font-semibold'" class="w-full flex items-center justify-between px-4 py-3 rounded-2xl transition-all text-sm group">
-                        <div class="flex items-center gap-3.5">
-                            <i class="fa-solid fa-pills w-5 text-center text-tealmed-600 group-hover:scale-110 transition-transform"></i>
-                            <span>Medicamentos</span>
-                        </div>
-                                            </button>
-
+                    
                     <button @click="navigateTo('timeline')" :class="activeTab === 'timeline' ? 'bg-tealmed-50/80 text-tealmed-800 font-bold shadow-sm shadow-tealmed-500/5' : 'text-slate-600 hover:bg-slate-50 font-semibold'" class="w-full flex items-center justify-between px-4 py-3 rounded-2xl transition-all text-sm group">
                         <div class="flex items-center gap-3.5">
                             <i class="fa-solid fa-clock-rotate-left w-5 text-center text-tealmed-600 group-hover:scale-110 transition-transform"></i>
@@ -272,7 +266,7 @@
                     <!-- Desktop Header Title & Global Search Bar -->
                     <div class="hidden md:flex items-center gap-4 flex-1 max-w-xl mr-4">
                         <h1 class="text-lg font-extrabold text-slate-900 tracking-tight whitespace-nowrap">
-                            {{ activeTab === 'dashboard' ? 'Painel' : activeTab === 'members' ? 'Pacientes' : activeTab === 'memberDetail' ? (currentMember ? currentMember.name : 'Prontuário') : activeTab === 'examsHub' ? 'Exames & Prazos' : activeTab === 'medicationsHub' ? 'Medicamentos' : 'Histórico Global' }}
+                            {{ activeTab === 'dashboard' ? 'Painel' : activeTab === 'members' ? 'Pacientes' : activeTab === 'memberDetail' ? (currentMember ? currentMember.name : 'Prontuário') : activeTab === 'examsHub' ? 'Exames & Prazos' : 'Histórico Global' }}
                         </h1>
 
                         <!-- Barra de Busca Rápida de Pacientes no Header Superior -->
@@ -336,10 +330,7 @@
                                     <button @click="openPeriodicExamModal()" class="flex-1 md:flex-none bg-white hover:bg-tealmed-50 text-tealmed-800 font-bold px-4 py-2.5 rounded-xl text-xs flex items-center justify-center gap-2 shadow-lg shadow-black/10 transition-all">
                                         <i class="fa-solid fa-calendar-plus"></i> Programar Exame
                                     </button>
-                                    <button @click="openMedicationModal()" class="flex-1 md:flex-none bg-white/10 hover:bg-white/20 text-white font-bold px-4 py-2.5 rounded-xl text-xs flex items-center justify-center gap-2 backdrop-blur transition-all">
-                                        <i class="fa-solid fa-pills"></i> Novo Remédio
-                                    </button>
-                                </div>
+                                                                    </div>
                             </div>
 
                             <!-- Banners de Alerta Imediato -->
@@ -368,7 +359,7 @@
                                 <p class="text-xs font-semibold text-amber-900 leading-relaxed">
                                     <span v-if="!notificationSupported">Para receber avisos no celular, adicione o Vitalis à tela de início.</span>
                                     <span v-else-if="notificationStatus === 'denied'">Os avisos estão bloqueados neste navegador. Libere as notificações nas configurações do site.</span>
-                                    <span v-else>Ative os avisos para receber alertas de remédios e consultas, mesmo com o app em segundo plano.</span>
+                                    <span v-else>Ative os avisos para receber alertas de consultas e exames, mesmo com o app em segundo plano.</span>
                                 </p>
                             </div>
                             <button v-if="notificationSupported && notificationStatus !== 'denied'" @click="requestNotificationPermission" class="shrink-0 bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold px-4 py-2 rounded-xl shadow-sm transition-colors">Ativar avisos</button>
@@ -381,28 +372,23 @@
                                     <h3 class="font-extrabold text-slate-900 text-lg flex items-center gap-2"><i class="fa-regular fa-calendar-check text-tealmed-600"></i> Agenda de Hoje</h3>
                                     <p class="text-xs text-slate-500 capitalize mt-0.5">{{ todayLabel }}</p>
                                 </div>
-                                <span v-if="todayDosesTotal > 0" class="text-xs font-bold px-3 py-1 rounded-full whitespace-nowrap" :class="todayDosesDone === todayDosesTotal ? 'bg-emerald-50 text-emerald-700' : 'bg-tealmed-50 text-tealmed-700'">{{ todayDosesDone }}/{{ todayDosesTotal }} doses</span>
-                            </div>
+                                                            </div>
 
                             <div v-if="todayAgenda.length" class="divide-y divide-slate-100">
                                 <div v-for="item in todayAgenda" :key="item.id" class="py-3 flex items-center gap-3">
                                     <span class="w-12 shrink-0 text-sm font-extrabold tabular-nums" :class="item.late ? 'text-amber-600' : 'text-slate-700'">{{ item.time }}</span>
-                                    <button v-if="item.kind === 'dose'" @click="toggleDose(item.med, item.slotTime)" :class="item.done ? 'bg-emerald-500 text-white' : 'bg-slate-100 text-slate-500 hover:bg-tealmed-50 hover:text-tealmed-700'" class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 transition-all active:scale-90" :title="item.done ? 'Desmarcar dose' : 'Marcar como tomado'">
-                                        <i :class="item.done ? 'fa-solid fa-check' : 'fa-solid fa-pills'"></i>
-                                    </button>
-                                    <div v-else class="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center shrink-0"><i class="fa-regular fa-bell"></i></div>
+                                                                        <div class="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center shrink-0"><i class="fa-regular fa-bell"></i></div>
                                     <button @click="item.kind === 'record' && openRecordModal(item.data)" class="flex-1 min-w-0 text-left">
                                         <p class="text-sm font-bold truncate" :class="item.done ? 'line-through text-slate-400' : 'text-slate-900'">{{ item.title }}</p>
                                         <p class="text-xs text-slate-500 truncate">{{ item.subtitle }}</p>
                                     </button>
-                                    <span v-if="item.kind === 'dose'" class="text-[11px] font-bold shrink-0" :class="item.done ? 'text-emerald-600' : item.late ? 'text-amber-600' : 'text-slate-400'">{{ item.done ? 'Tomado' : item.late ? 'Atrasado' : 'Pendente' }}</span>
-                                </div>
+                                                                    </div>
                             </div>
 
                             <div v-else class="py-8 text-center">
                                 <div class="w-12 h-12 rounded-2xl bg-slate-100 text-slate-400 flex items-center justify-center mx-auto mb-3 text-xl"><i class="fa-regular fa-calendar"></i></div>
                                 <p class="text-sm font-bold text-slate-700">Nada agendado para hoje</p>
-                                <p class="text-xs text-slate-400 mt-1">Doses de remédios e lembretes aparecem aqui automaticamente.</p>
+                                <p class="text-xs text-slate-400 mt-1">Lembretes e consultas de hoje aparecem aqui automaticamente.</p>
                             </div>
                         </section>
 
@@ -418,12 +404,7 @@
                                 <div class="text-3xl font-semibold font-mono tabular-nums text-slate-900 mt-1">{{ periodicExams.length }}</div>
                                 <div class="text-xs mt-2" :class="overdueExamsCount > 0 ? 'text-[#B3261E] font-semibold' : 'text-[#137A4B]'">{{ overdueExamsCount > 0 ? overdueExamsCount + ' atrasados' : 'Todos em dia' }}</div>
                             </button>
-                            <button @click="navigateTo('medicationsHub')" class="vp-card p-5 text-left hover:border-tealmed-400 transition-colors">
-                                <div class="text-xs font-semibold text-slate-500">Medicamentos contínuos</div>
-                                <div class="text-3xl font-semibold font-mono tabular-nums text-slate-900 mt-1">{{ medications.length }}</div>
-                                <div class="text-xs mt-2 text-slate-500">Uso contínuo</div>
-                            </button>
-                            <button @click="navigateTo('timeline')" class="vp-card p-5 text-left hover:border-tealmed-400 transition-colors">
+                                                        <button @click="navigateTo('timeline')" class="vp-card p-5 text-left hover:border-tealmed-400 transition-colors">
                                 <div class="text-xs font-semibold text-slate-500">Registros clínicos</div>
                                 <div class="text-3xl font-semibold font-mono tabular-nums text-slate-900 mt-1">{{ records.length }}</div>
                                 <div class="text-xs text-slate-500 mt-2">Histórico completo</div>
@@ -559,7 +540,6 @@
                                             <th class="text-left px-4 py-2.5 font-semibold">Sangue</th>
                                             <th class="text-right px-4 py-2.5 font-semibold">Consultas</th>
                                             <th class="text-right px-4 py-2.5 font-semibold">Exames</th>
-                                            <th class="text-right px-4 py-2.5 font-semibold">Remédios</th>
                                             <th class="text-left px-4 py-2.5 font-semibold">Alertas</th>
                                             <th class="px-4 py-2.5"><span class="sr-only">Ações</span></th>
                                         </tr>
@@ -583,7 +563,6 @@
                                             <td class="px-4 py-3 font-mono text-xs text-slate-700">{{ member.bloodType || 'N/A' }}</td>
                                             <td class="px-4 py-3 text-right font-mono tabular-nums">{{ getMemberRecords(member.id).length }}</td>
                                             <td class="px-4 py-3 text-right font-mono tabular-nums">{{ getMemberExams(member.id).length }}</td>
-                                            <td class="px-4 py-3 text-right font-mono tabular-nums">{{ getMemberMeds(member.id).length }}</td>
                                             <td class="px-4 py-3">
                                                 <div class="flex flex-wrap gap-1.5">
                                                     <span v-if="member.allergies" class="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-[#FCE9E7] text-[#B3261E]">Alergia</span>
@@ -651,8 +630,7 @@
                                 Exames & prazos
                                 <span v-if="getMemberOverdueExams(currentMember.id).length > 0" class="w-2 h-2 rounded-full bg-[#B3261E]"></span>
                             </button>
-                            <button @click="memberTab = 'meds'" :class="memberTab === 'meds' ? 'vp-tab-on' : ''" class="vp-tab">Medicamentos</button>
-                            <button @click="memberTab = 'history'" :class="memberTab === 'history' ? 'vp-tab-on' : ''" class="vp-tab">Prontuário</button>
+                                                        <button @click="memberTab = 'history'" :class="memberTab === 'history' ? 'vp-tab-on' : ''" class="vp-tab">Prontuário</button>
                         </nav>
 
                         <!-- ABA 1: RESUMO CLÍNICO -->
@@ -811,57 +789,6 @@
                             </section>
                         </div>
 
-                        <!-- ABA 4: MEDICAMENTOS EM USO -->
-                        <div v-if="memberTab === 'meds'" class="space-y-4 animate-fade">
-                            <section class="vp-card p-5 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                                <div>
-                                    <h2 class="flex items-center gap-2 font-semibold text-base text-slate-900"><span class="w-2 h-2 rounded-full bg-[#6D3BB0]"></span> Medicamentos em uso</h2>
-                                    <p class="text-xs text-slate-500 mt-1">Medicamentos contínuos, horários e doses de hoje.</p>
-                                </div>
-                                <button @click="openMedicationModal(null, currentMember.id)" class="bg-tealmed-600 hover:bg-tealmed-700 text-white h-10 px-4 rounded-lg text-sm font-semibold flex items-center gap-2 transition-colors">
-                                    <i class="fa-solid fa-plus"></i> Novo medicamento
-                                </button>
-                            </section>
-
-                            <section class="vp-card overflow-hidden">
-                                <div class="overflow-x-auto">
-                                    <table class="vp-table">
-                                        <thead>
-                                            <tr class="bg-[#F1EAFA] text-[#6D3BB0]"><th>Medicamento</th><th>Dose</th><th>Horários</th><th>Doses de hoje</th><th></th></tr>
-                                        </thead>
-                                        <tbody>
-                                            <tr v-for="med in getMemberMeds(currentMember.id)" :key="med.id">
-                                                <td>
-                                                    <div class="font-semibold">{{ med.name }}</div>
-                                                    <div v-if="med.instructions" class="text-xs text-slate-500 mt-0.5 italic">{{ med.instructions }}</div>
-                                                </td>
-                                                <td class="font-mono whitespace-nowrap">{{ med.dosage || 'Uso contínuo' }}</td>
-                                                <td class="font-mono whitespace-nowrap">{{ med.times || '08:00' }}</td>
-                                                <td>
-                                                    <div v-if="doseSlots(med).length" class="flex flex-wrap gap-1.5">
-                                                        <button v-for="slot in doseSlots(med)" :key="slot.time" @click="toggleDose(med, slot.time)" :class="slot.taken ? 'bg-[#137A4B] border-[#137A4B] text-white' : slot.late ? 'bg-[#FDF3E1] border-[#9A5B00] text-[#9A5B00]' : 'bg-white border-slate-300 text-slate-700 hover:border-tealmed-500'" class="h-8 px-2.5 rounded-lg border text-xs font-mono font-medium flex items-center gap-1.5 transition-colors">
-                                                            <i :class="slot.taken ? 'fa-solid fa-circle-check' : 'fa-regular fa-circle'"></i>{{ slot.time }}
-                                                        </button>
-                                                    </div>
-                                                    <span v-else class="text-slate-400 text-xs">Sem horários</span>
-                                                </td>
-                                                <td class="text-right whitespace-nowrap">
-                                                    <button @click="openMedicationModal(med)" class="text-slate-400 hover:text-tealmed-700 p-1.5" title="Editar"><i class="fa-solid fa-pen text-xs"></i></button>
-                                                    <button @click="deleteMedication(med.id)" class="text-slate-400 hover:text-[#B3261E] p-1.5" title="Excluir"><i class="fa-solid fa-trash text-xs"></i></button>
-                                                </td>
-                                            </tr>
-                                            <tr v-if="getMemberMeds(currentMember.id).length === 0">
-                                                <td colspan="5" class="text-center py-8">
-                                                    <p class="text-slate-700 font-semibold">Nenhum medicamento em uso cadastrado.</p>
-                                                    <button @click="openMedicationModal(null, currentMember.id)" class="mt-4 bg-tealmed-600 text-white text-xs font-semibold px-4 h-9 rounded-lg">Cadastrar medicamento</button>
-                                                </td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </section>
-                        </div>
-
                         <!-- ABA 5: PRONTUÁRIO SOAP & HISTÓRICO -->
                         <div v-if="memberTab === 'history'" class="space-y-4 animate-fade">
                             <section class="vp-card p-5 flex justify-between items-center gap-4">
@@ -975,66 +902,6 @@
                         </div>
                     </div>
 
-                    <!-- ================= VIEW 5: MEDICAMENTOS HUB ================= -->
-                    <div v-if="activeTab === 'medicationsHub'" class="max-w-6xl mx-auto space-y-4 animate-fade">
-                        <div class="vp-card p-5 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                            <div>
-                                <h2 class="text-xl font-extrabold text-slate-900">Medicamentos em uso</h2>
-                                <p class="text-xs text-slate-500 mt-0.5">Doses do dia de cada medicamento em uso.</p>
-                            </div>
-                            <button @click="openMedicationModal()" class="bg-tealmed-600 hover:bg-tealmed-700 text-white px-4 py-2.5 rounded-md text-xs font-bold flex items-center gap-2 transition-all">
-                                <i class="fa-solid fa-plus"></i> Novo remédio
-                            </button>
-                        </div>
-
-                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                            <div class="vp-card p-5">
-                                <div class="text-xs font-semibold text-slate-500">Doses de hoje</div>
-                                <div class="text-3xl font-semibold font-mono tabular-nums text-slate-900 mt-1">{{ todayDosesDone }}<span class="text-base text-slate-400">/{{ todayDosesTotal }}</span></div>
-                                <div class="text-xs text-slate-500 mt-2">Marcadas como tomadas</div>
-                            </div>
-                                                        <div class="vp-card p-5">
-                                <div class="text-xs font-semibold text-slate-500">Remédios cadastrados</div>
-                                <div class="text-3xl font-semibold font-mono tabular-nums text-slate-900 mt-1">{{ medications.length }}</div>
-                                <div class="text-xs text-slate-500 mt-2">Uso contínuo</div>
-                            </div>
-                        </div>
-
-                        <div class="vp-card overflow-hidden">
-                            <div class="overflow-x-auto">
-                                <table class="w-full text-sm">
-                                    <thead class="bg-slate-100 text-xs text-slate-600">
-                                        <tr>
-                                            <th class="text-left px-4 py-2.5 font-semibold">Paciente</th>
-                                            <th class="text-left px-4 py-2.5 font-semibold">Medicamento</th>
-                                            <th class="text-left px-4 py-2.5 font-semibold">Dose</th>
-                                            <th class="text-left px-4 py-2.5 font-semibold">Horários</th>
-                                                                                        <th class="px-4 py-2.5"><span class="sr-only">Ações</span></th>
-                                        </tr>
-                                    </thead>
-                                    <tbody class="divide-y divide-slate-100">
-                                        <tr v-for="med in medications" :key="med.id" class="hover:bg-slate-50">
-                                            <td class="px-4 py-3 text-slate-700">{{ med.memberName }}</td>
-                                            <td class="px-4 py-3 font-semibold text-slate-900">{{ med.name }}</td>
-                                            <td class="px-4 py-3 font-mono text-xs text-slate-700">{{ med.dosage || 'Contínuo' }}</td>
-                                            <td class="px-4 py-3">
-                                                <div class="flex flex-wrap gap-1.5">
-                                                    <span v-for="t in (med.times || '08:00').split(',')" :key="t" class="font-mono text-[11px] px-2 py-0.5 rounded-md bg-slate-100 text-slate-700">{{ t.trim() }}</span>
-                                                </div>
-                                            </td>
-                                                                                        <td class="px-4 py-3 text-right whitespace-nowrap">
-                                                                                                <button @click="openMedicationModal(med)" class="text-slate-400 hover:text-tealmed-700 p-1" title="Editar"><i class="fa-solid fa-pen text-xs"></i></button>
-                                            </td>
-                                        </tr>
-                                        <tr v-if="medications.length === 0">
-                                            <td colspan="5" class="px-4 py-10 text-center text-slate-500">Nenhum medicamento em uso cadastrado.</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-
                     <!-- ================= VIEW 6: TIMELINE GLOBAL ================= -->
                     <div v-if="activeTab === 'timeline'" class="max-w-4xl mx-auto space-y-6 animate-fade">
                         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-5 rounded-2xl border border-slate-200/80 shadow-subtle">
@@ -1097,10 +964,7 @@
                         </button>
                     </div>
 
-                    <button @click="navigateTo('medicationsHub')" :class="activeTab === 'medicationsHub' ? 'text-tealmed-700 font-bold' : 'text-slate-400 font-medium'" class="flex flex-col items-center w-full transition-colors">
-                        <i class="fa-solid fa-pills text-lg mb-1"></i><span class="text-[10px]">Remédios</span>
-                    </button>
-
+                    
                     <button @click="navigateTo('members')" :class="activeTab === 'members' || activeTab === 'memberDetail' ? 'text-tealmed-700 font-bold' : 'text-slate-400 font-medium'" class="flex flex-col items-center w-full transition-colors">
                         <i class="fa-solid fa-users text-lg mb-1"></i><span class="text-[10px]">Pacientes</span>
                     </button>
@@ -1242,12 +1106,6 @@
                         <h4 class="font-extrabold text-slate-900 text-xs uppercase tracking-wider mb-2 text-emerald-700"><i class="fa-solid fa-pills mr-1"></i> Medicamentos em Uso Contínuo</h4>
                         <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-2">
                             <p class="text-slate-800 font-bold text-sm whitespace-pre-line">{{ reportMember.medications || 'Nenhum medicamento informado no cadastro.' }}</p>
-                            <div v-if="getMemberMeds(reportMember.id).length > 0" class="pt-2 border-t border-slate-200 grid grid-cols-1 sm:grid-cols-2 gap-2">
-                                <div v-for="m in getMemberMeds(reportMember.id)" :key="m.id" class="text-xs bg-white p-2.5 rounded-lg border border-slate-200">
-                                    <span class="font-bold text-slate-900 block">{{ m.name }} ({{ m.dosage }})</span>
-                                    <span class="text-slate-500">Horários: {{ m.times }}</span>
-                                </div>
-                            </div>
                         </div>
                     </div>
 
@@ -1430,46 +1288,6 @@
             </div>
         </div>
 
-        <!-- 7. MODAL MEDICAMENTO & ESTOQUE (ADD/EDIT) -->
-        <div v-if="showMedicationModal" class="fixed inset-0 bg-slate-900/60 z-50 flex items-center justify-center p-4 backdrop-blur-sm animate-fade">
-            <div class="bg-white rounded-3xl w-full max-w-lg shadow-2xl flex flex-col max-h-[90vh] overflow-hidden">
-                <div class="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50">
-                    <h3 class="text-base font-extrabold text-slate-900">{{ isEditingMed ? 'Editar Medicamento' : 'Novo Medicamento' }}</h3>
-                    <button @click="showMedicationModal = false" class="w-8 h-8 rounded-xl bg-slate-100 hover:bg-red-50 text-slate-400 hover:text-red-500 flex items-center justify-center transition-colors"><i class="fa-solid fa-times"></i></button>
-                </div>
-                <div class="p-6 overflow-y-auto space-y-4">
-                    <div>
-                        <label class="block text-xs font-bold text-slate-600 uppercase mb-1.5">Paciente</label>
-                        <select v-model="medicationForm.memberId" class="w-full p-3.5 bg-slate-50 rounded-xl border border-slate-200 focus:border-tealmed-500 focus:bg-white outline-none text-xs font-bold text-slate-800 transition-all">
-                            <option value="" disabled>Selecione um paciente...</option>
-                            <option v-for="m in sortedMembers" :key="m.id" :value="m.id">{{ m.name }}</option>
-                        </select>
-                    </div>
-
-                    <div class="grid grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-xs font-bold text-slate-600 uppercase mb-1.5">Nome do Remédio</label>
-                            <input v-model="medicationForm.name" placeholder="Ex: Losartana Potássica" class="w-full p-3.5 bg-slate-50 rounded-xl border border-slate-200 focus:border-tealmed-500 focus:bg-white outline-none text-xs font-bold text-slate-800 transition-all">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-slate-600 uppercase mb-1.5">Dosagem / Apresentação</label>
-                            <input v-model="medicationForm.dosage" placeholder="Ex: 50mg, 1 comprimido" class="w-full p-3.5 bg-slate-50 rounded-xl border border-slate-200 focus:border-tealmed-500 focus:bg-white outline-none text-xs font-bold text-slate-800 transition-all">
-                        </div>
-                    </div>
-
-                    <div>
-                        <label class="block text-xs font-bold text-slate-600 uppercase mb-1.5">Horários Diários</label>
-                        <input v-model="medicationForm.times" placeholder="Ex: 08:00, 20:00" class="w-full p-3.5 bg-slate-50 rounded-xl border border-slate-200 focus:border-tealmed-500 focus:bg-white outline-none text-xs font-bold text-slate-800 transition-all">
-                    </div>
-
-                                    </div>
-                <div class="p-4 border-t border-slate-100 bg-slate-50 flex gap-3">
-                    <button @click="showMedicationModal = false" class="flex-1 py-3 text-slate-600 font-bold hover:bg-white rounded-xl text-xs transition-all">Cancelar</button>
-                    <button @click="saveMedication" class="flex-1 py-3 bg-tealmed-600 text-white rounded-xl font-bold shadow-md hover:bg-tealmed-700 text-xs transition-all">Salvar Medicamento</button>
-                </div>
-            </div>
-        </div>
-
         <!-- 8. MODAL REGISTRO SIMPLES / LEMBRETE -->
         <div v-if="showRecordModal" class="fixed inset-0 bg-slate-900/60 z-50 flex items-center justify-center p-4 backdrop-blur-sm animate-fade">
             <div class="bg-white rounded-3xl w-full max-w-lg shadow-2xl flex flex-col max-h-[90vh] overflow-hidden">
@@ -1625,7 +1443,7 @@
         import { createApp, ref, computed, onMounted, nextTick, watch } from 'https://unpkg.com/vue@3/dist/vue.esm-browser.js';
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
         import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
-        import { getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, query, onSnapshot, orderBy, serverTimestamp, enableIndexedDbPersistence, arrayUnion, arrayRemove } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+        import { getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, query, onSnapshot, orderBy, serverTimestamp, enableIndexedDbPersistence } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
 
         // --- FIREBASE CONFIG ---
         const firebaseConfig = {
@@ -1659,8 +1477,7 @@
                 const records = ref([]);
                 const periodicExams = ref([]);
                 const vitals = ref([]);
-                const medications = ref([]);
-
+                
                 // Busca
                 const memberSearchQuery = ref('');
                 const timelineSearchQuery = ref('');
@@ -1686,9 +1503,6 @@
                 const showVitalModal = ref(false);
                 const vitalForm = ref({ id: null, memberId: '', systolic: null, diastolic: null, glucose: null, spo2: null, weight: null, notes: '' });
 
-                const showMedicationModal = ref(false);
-                const isEditingMed = ref(false);
-                const medicationForm = ref({ id: null, memberId: '', name: '', dosage: '', times: '08:00' });
 
                 const showConsultationModal = ref(false);
                 const consultationForm = ref({ memberId: '', date: '', anamnesis: '', exam: '', diagnosis: '', plan: '', vitals: { systolic: '', diastolic: '', glucose: '', spo2: '', weight: '' } });
@@ -1698,53 +1512,19 @@
                 const clock = ref(Date.now());
                 const toast = ref(null);
 
-                // ================= DATAS, DOSES & LEMBRETES =================
+                // ================= DATAS & LEMBRETES =================
                 const pad2 = (n) => String(n).padStart(2, '0');
-                // Chave de data no fuso local (YYYY-MM-DD), usada para o controle diário de doses
+                // Chave de data no fuso local (YYYY-MM-DD)
                 const localDateKey = (d = new Date()) => `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`;
                 const localDateFromKey = (key) => {
                     const [y, m, d] = key.split('-').map(Number);
                     return new Date(y, m - 1, d);
-                };
-                // Extrai horários "08:00, 20:00" normalizando para HH:MM, sem repetição e em ordem
-                const parseTimes = (str) => [...new Set(
-                    ((str || '').match(/\b([01]?\d|2[0-3]):[0-5]\d\b/g) || []).map(t => t.padStart(5, '0'))
-                )].sort();
-                const timeToDate = (hhmm) => {
-                    const [h, m] = hhmm.split(':').map(Number);
-                    const d = new Date();
-                    d.setHours(h, m, 0, 0);
-                    return d;
                 };
                 const toInputDateTime = (iso) => {
                     const d = new Date(iso);
                     d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
                     return d.toISOString().slice(0, 16);
                 };
-                const isTakenToday = (med, time) => ((med.takenLog || {})[localDateKey()] || []).includes(time);
-
-                const doseSlots = (med) => {
-                    const now = clock.value;
-                    return parseTimes(med.times).map(time => ({
-                        time,
-                        taken: isTakenToday(med, time),
-                        late: !isTakenToday(med, time) && now > timeToDate(time).getTime() + 60 * 60000
-                    }));
-                };
-
-                const toggleDose = async (med, time) => {
-                    const taken = isTakenToday(med, time);
-                    try {
-                        await updateDoc(doc(db, 'families', FAMILY_SHARED_ID, 'medications', med.id), {
-                            [`takenLog.${localDateKey()}`]: taken ? arrayRemove(time) : arrayUnion(time),
-                            updatedAt: serverTimestamp()
-                        });
-                        showToast(taken ? `Dose das ${time} desmarcada.` : `${med.name} marcado como tomado às ${time}.`);
-                    } catch (e) {
-                        showToast('Não foi possível atualizar a dose.', 'error');
-                    }
-                };
-
                 let toastTimer = null;
                 const showToast = (message, type = 'success') => {
                     toast.value = { message, type };
@@ -1798,16 +1578,7 @@
                         fire(`rec_${r.id}_${r.date}`, `${r.category}: ${r.title}`, `${r.memberName || 'Paciente'} • ${leadMs ? 'começa' : 'agora'} às ${when}`);
                     });
 
-                    // 2. Doses de medicamentos no horário e ainda não marcadas como tomadas
-                    medications.value.forEach(med => {
-                        parseTimes(med.times).forEach(time => {
-                            const at = timeToDate(time).getTime();
-                            if (now < at || now > at + 2 * 3600000 || isTakenToday(med, time)) return;
-                            fire(`dose_${med.id}_${todayKey}_${time}`, `Hora do remédio: ${med.name}`, `${med.memberName || 'Paciente'} • ${med.dosage || 'Dose'} às ${time}. Toque para marcar.`);
-                        });
-                    });
-
-                    // 3. Exames: aviso 15 dias antes e alerta diário quando vencidos ou vencendo hoje
+                    // 2. Exames: aviso 15 dias antes e alerta diário quando vencidos ou vencendo hoje
                     const todayStart = localDateFromKey(todayKey);
                     periodicExams.value.forEach(exam => {
                         if (!exam.nextDueDate) return;
@@ -2008,7 +1779,7 @@
 
                 const allAlertsCount = computed(() => allAlertsList.value.length);
 
-                // Agenda do dia: doses de medicamentos e lembretes/consultas de hoje, em ordem de horário
+                // Agenda do dia: lembretes e consultas de hoje, em ordem de horário
                 const notificationSupported = 'Notification' in window;
                 const todayLabel = new Date().toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' });
 
@@ -2016,25 +1787,6 @@
                     const now = clock.value;
                     const todayKey = localDateKey();
                     const items = [];
-
-                    medications.value.forEach(med => {
-                        parseTimes(med.times).forEach(time => {
-                            const at = timeToDate(time).getTime();
-                            const done = isTakenToday(med, time);
-                            items.push({
-                                id: `dose_${med.id}_${time}`,
-                                kind: 'dose',
-                                at,
-                                time,
-                                title: med.name,
-                                subtitle: `${med.memberName || ''} • ${med.dosage || 'Uso contínuo'}`,
-                                done,
-                                late: !done && now > at + 60 * 60000,
-                                med,
-                                slotTime: time
-                            });
-                        });
-                    });
 
                     records.value.forEach(r => {
                         if (!['Lembrete', 'Consulta'].includes(r.category) || !r.date) return;
@@ -2054,9 +1806,6 @@
 
                     return items.sort((a, b) => a.at - b.at);
                 });
-
-                const todayDosesTotal = computed(() => todayAgenda.value.filter(i => i.kind === 'dose').length);
-                const todayDosesDone = computed(() => todayAgenda.value.filter(i => i.kind === 'dose' && i.done).length);
 
                 // ================= AUTH =================
                 const loginWithGoogle = async () => {
@@ -2150,10 +1899,6 @@
                         }
                     });
 
-                    // 5. Medicamentos
-                    onSnapshot(collection(db, 'families', FAMILY_SHARED_ID, 'medications'), (snap) => {
-                        medications.value = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-                    });
                 };
 
                 // Watchers para renderizar o gráfico ao trocar de aba
@@ -2413,54 +2158,6 @@
                     });
                 };
 
-                // ================= CRUD MEDICAMENTOS & ESTOQUE =================
-                const openMedicationModal = (med = null, preSelectedMemberId = null) => {
-                    if (med) {
-                        isEditingMed.value = true;
-                        medicationForm.value = { ...med };
-                    } else {
-                        isEditingMed.value = false;
-                        medicationForm.value = {
-                            id: null,
-                            memberId: preSelectedMemberId || (currentMember.value ? currentMember.value.id : ''),
-                            name: '',
-                            dosage: '',
-                            times: '08:00'
-                        };
-                    }
-                    showMedicationModal.value = true;
-                };
-
-                const saveMedication = async () => {
-                    if (!medicationForm.value.name || !medicationForm.value.memberId) {
-                        alert('Informe o Nome do Medicamento e o Paciente.'); return;
-                    }
-                    try {
-                        const member = members.value.find(m => m.id === medicationForm.value.memberId);
-                        const data = {
-                            memberId: medicationForm.value.memberId,
-                            memberName: member ? member.name : 'Unknown',
-                            name: medicationForm.value.name,
-                            dosage: medicationForm.value.dosage || '',
-                            times: medicationForm.value.times || '08:00',
-                            updatedAt: serverTimestamp()
-                        };
-
-                        if (isEditingMed.value && medicationForm.value.id) {
-                            await updateDoc(doc(db, 'families', FAMILY_SHARED_ID, 'medications', medicationForm.value.id), data);
-                        } else {
-                            await addDoc(collection(db, 'families', FAMILY_SHARED_ID, 'medications'), { ...data, createdAt: serverTimestamp() });
-                        }
-                        showMedicationModal.value = false;
-                    } catch (e) { alert('Erro ao salvar medicamento: ' + e.message); }
-                };
-
-                const deleteMedication = async (id) => {
-                    if (confirm('Excluir este medicamento?')) {
-                        await deleteDoc(doc(db, 'families', FAMILY_SHARED_ID, 'medications', id));
-                    }
-                };
-
                 // ================= CRUD REGISTROS GERAIS (LEMBRETES / CONSULTAS) =================
                 const openRecordModal = (record = null, preSelectedMemberId = null) => {
                     if (record) {
@@ -2641,8 +2338,7 @@
                         { label: 'Peso', value: wt ? wt.weight : '--', unit: 'kg', note: when(wt) },
                     ];
                 };
-                const getMemberMeds = (memberId) => medications.value.filter(m => m.memberId === memberId);
-
+                
                 const calculateAge = (d) => d ? Math.floor((Date.now() - new Date(d).getTime()) / (3.15576e+10)) : 0;
                 const formatDate = (iso) => iso ? new Date(iso).toLocaleString('pt-BR', {day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit'}) : '';
                 const formatDateOnly = (d) => {
@@ -2671,7 +2367,7 @@
 
                 return {
                     user, loading, errorMsg, notificationStatus, activeTab, memberTab,
-                    members, records, periodicExams, vitals, medications, currentMember, reportMember,
+                    members, records, periodicExams, vitals, currentMember, reportMember,
                     memberSearchQuery, timelineSearchQuery, sortedMembers, toggleFavorite, filteredMembers, filteredTimeline,
                     upcomingReminders, overdueExamsCount, upcomingExamsCount, upToDateExamsCount,
                     allAlertsList, allAlertsCount,
@@ -2680,21 +2376,20 @@
                     showRecordModal, isEditingRecord, recordForm,
                     showPeriodicExamModal, isEditingExam, periodicExamForm,
                     showVitalModal, vitalForm,
-                    showMedicationModal, isEditingMed, medicationForm,
-                    showConsultationModal, consultationForm,
+                                        showConsultationModal, consultationForm,
                     totalMembers,
                     loginWithGoogle, logout, navigateTo, onSearchFocus, requestNotificationPermission,
                     openMemberModal, saveMember, deleteMember, openMemberDetail, goToMemberFromRecord,
                     openPeriodicExamModal, savePeriodicExam, markExamAsCompleted, deletePeriodicExam, getExamStatusBadge,
                     openVitalModal, saveVital, deleteVital, renderVitalsChart,
-                    openMedicationModal, saveMedication, deleteMedication,
+                    
                     openRecordModal, saveRecord, deleteRecord,
                     openConsultationModal, saveConsultation,
                     generateMedicalReport, printReport, handleAlertAction, addToCalendar,
-                    getMemberRecords, getMemberExams, getMemberOverdueExams, getMemberVitals, vitalCards, vitalsSummary, getLatestEvolution, memberMedLines, getMemberMeds,
+                    getMemberRecords, getMemberExams, getMemberOverdueExams, getMemberVitals, vitalCards, vitalsSummary, getLatestEvolution, memberMedLines,
                     calculateAge, formatDate, formatDateOnly, getCategoryColor, getCategoryIcon,
-                    todayAgenda, todayDosesTotal, todayDosesDone, todayLabel, notificationSupported,
-                    doseSlots, toggleDose, downloadIcs, toast
+                    todayAgenda, todayLabel, notificationSupported,
+                    downloadIcs, toast
                 };
             }
         }).mount('#app');
