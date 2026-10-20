@@ -211,13 +211,7 @@
                         <span v-if="overdueExamsCount > 0" class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-red-100 text-red-700">{{ overdueExamsCount }} atrasados</span>
                     </button>
 
-                    <button @click="navigateTo('medicationsHub')" :class="activeTab === 'medicationsHub' ? 'bg-tealmed-50/80 text-tealmed-800 font-bold shadow-sm shadow-tealmed-500/5' : 'text-slate-600 hover:bg-slate-50 font-semibold'" class="w-full flex items-center justify-between px-4 py-3 rounded-2xl transition-all text-sm group">
-                        <div class="flex items-center gap-3.5">
-                            <i class="fa-solid fa-pills w-5 text-center text-tealmed-600 group-hover:scale-110 transition-transform"></i>
-                            <span>Medicamentos</span>
-                        </div>
-                                            </button>
-
+                    
                     <button @click="navigateTo('timeline')" :class="activeTab === 'timeline' ? 'bg-tealmed-50/80 text-tealmed-800 font-bold shadow-sm shadow-tealmed-500/5' : 'text-slate-600 hover:bg-slate-50 font-semibold'" class="w-full flex items-center justify-between px-4 py-3 rounded-2xl transition-all text-sm group">
                         <div class="flex items-center gap-3.5">
                             <i class="fa-solid fa-clock-rotate-left w-5 text-center text-tealmed-600 group-hover:scale-110 transition-transform"></i>
@@ -272,7 +266,7 @@
                     <!-- Desktop Header Title & Global Search Bar -->
                     <div class="hidden md:flex items-center gap-4 flex-1 max-w-xl mr-4">
                         <h1 class="text-lg font-extrabold text-slate-900 tracking-tight whitespace-nowrap">
-                            {{ activeTab === 'dashboard' ? 'Painel' : activeTab === 'members' ? 'Pacientes' : activeTab === 'memberDetail' ? (currentMember ? currentMember.name : 'Prontuário') : activeTab === 'examsHub' ? 'Exames & Prazos' : activeTab === 'medicationsHub' ? 'Medicamentos' : 'Histórico Global' }}
+                            {{ activeTab === 'dashboard' ? 'Painel' : activeTab === 'members' ? 'Pacientes' : activeTab === 'memberDetail' ? (currentMember ? currentMember.name : 'Prontuário') : activeTab === 'examsHub' ? 'Exames & Prazos' : 'Histórico Global' }}
                         </h1>
 
                         <!-- Barra de Busca Rápida de Pacientes no Header Superior -->
@@ -418,12 +412,7 @@
                                 <div class="text-3xl font-semibold font-mono tabular-nums text-slate-900 mt-1">{{ periodicExams.length }}</div>
                                 <div class="text-xs mt-2" :class="overdueExamsCount > 0 ? 'text-[#B3261E] font-semibold' : 'text-[#137A4B]'">{{ overdueExamsCount > 0 ? overdueExamsCount + ' atrasados' : 'Todos em dia' }}</div>
                             </button>
-                            <button @click="navigateTo('medicationsHub')" class="vp-card p-5 text-left hover:border-tealmed-400 transition-colors">
-                                <div class="text-xs font-semibold text-slate-500">Medicamentos contínuos</div>
-                                <div class="text-3xl font-semibold font-mono tabular-nums text-slate-900 mt-1">{{ medications.length }}</div>
-                                <div class="text-xs mt-2 text-slate-500">Uso contínuo</div>
-                            </button>
-                            <button @click="navigateTo('timeline')" class="vp-card p-5 text-left hover:border-tealmed-400 transition-colors">
+                                                        <button @click="navigateTo('timeline')" class="vp-card p-5 text-left hover:border-tealmed-400 transition-colors">
                                 <div class="text-xs font-semibold text-slate-500">Registros clínicos</div>
                                 <div class="text-3xl font-semibold font-mono tabular-nums text-slate-900 mt-1">{{ records.length }}</div>
                                 <div class="text-xs text-slate-500 mt-2">Histórico completo</div>
@@ -651,8 +640,7 @@
                                 Exames & prazos
                                 <span v-if="getMemberOverdueExams(currentMember.id).length > 0" class="w-2 h-2 rounded-full bg-[#B3261E]"></span>
                             </button>
-                            <button @click="memberTab = 'meds'" :class="memberTab === 'meds' ? 'vp-tab-on' : ''" class="vp-tab">Medicamentos</button>
-                            <button @click="memberTab = 'history'" :class="memberTab === 'history' ? 'vp-tab-on' : ''" class="vp-tab">Prontuário</button>
+                                                        <button @click="memberTab = 'history'" :class="memberTab === 'history' ? 'vp-tab-on' : ''" class="vp-tab">Prontuário</button>
                         </nav>
 
                         <!-- ABA 1: RESUMO CLÍNICO -->
@@ -811,57 +799,6 @@
                             </section>
                         </div>
 
-                        <!-- ABA 4: MEDICAMENTOS EM USO -->
-                        <div v-if="memberTab === 'meds'" class="space-y-4 animate-fade">
-                            <section class="vp-card p-5 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                                <div>
-                                    <h2 class="flex items-center gap-2 font-semibold text-base text-slate-900"><span class="w-2 h-2 rounded-full bg-[#6D3BB0]"></span> Medicamentos em uso</h2>
-                                    <p class="text-xs text-slate-500 mt-1">Medicamentos contínuos, horários e doses de hoje.</p>
-                                </div>
-                                <button @click="openMedicationModal(null, currentMember.id)" class="bg-tealmed-600 hover:bg-tealmed-700 text-white h-10 px-4 rounded-lg text-sm font-semibold flex items-center gap-2 transition-colors">
-                                    <i class="fa-solid fa-plus"></i> Novo medicamento
-                                </button>
-                            </section>
-
-                            <section class="vp-card overflow-hidden">
-                                <div class="overflow-x-auto">
-                                    <table class="vp-table">
-                                        <thead>
-                                            <tr class="bg-[#F1EAFA] text-[#6D3BB0]"><th>Medicamento</th><th>Dose</th><th>Horários</th><th>Doses de hoje</th><th></th></tr>
-                                        </thead>
-                                        <tbody>
-                                            <tr v-for="med in getMemberMeds(currentMember.id)" :key="med.id">
-                                                <td>
-                                                    <div class="font-semibold">{{ med.name }}</div>
-                                                    <div v-if="med.instructions" class="text-xs text-slate-500 mt-0.5 italic">{{ med.instructions }}</div>
-                                                </td>
-                                                <td class="font-mono whitespace-nowrap">{{ med.dosage || 'Uso contínuo' }}</td>
-                                                <td class="font-mono whitespace-nowrap">{{ med.times || '08:00' }}</td>
-                                                <td>
-                                                    <div v-if="doseSlots(med).length" class="flex flex-wrap gap-1.5">
-                                                        <button v-for="slot in doseSlots(med)" :key="slot.time" @click="toggleDose(med, slot.time)" :class="slot.taken ? 'bg-[#137A4B] border-[#137A4B] text-white' : slot.late ? 'bg-[#FDF3E1] border-[#9A5B00] text-[#9A5B00]' : 'bg-white border-slate-300 text-slate-700 hover:border-tealmed-500'" class="h-8 px-2.5 rounded-lg border text-xs font-mono font-medium flex items-center gap-1.5 transition-colors">
-                                                            <i :class="slot.taken ? 'fa-solid fa-circle-check' : 'fa-regular fa-circle'"></i>{{ slot.time }}
-                                                        </button>
-                                                    </div>
-                                                    <span v-else class="text-slate-400 text-xs">Sem horários</span>
-                                                </td>
-                                                <td class="text-right whitespace-nowrap">
-                                                    <button @click="openMedicationModal(med)" class="text-slate-400 hover:text-tealmed-700 p-1.5" title="Editar"><i class="fa-solid fa-pen text-xs"></i></button>
-                                                    <button @click="deleteMedication(med.id)" class="text-slate-400 hover:text-[#B3261E] p-1.5" title="Excluir"><i class="fa-solid fa-trash text-xs"></i></button>
-                                                </td>
-                                            </tr>
-                                            <tr v-if="getMemberMeds(currentMember.id).length === 0">
-                                                <td colspan="5" class="text-center py-8">
-                                                    <p class="text-slate-700 font-semibold">Nenhum medicamento em uso cadastrado.</p>
-                                                    <button @click="openMedicationModal(null, currentMember.id)" class="mt-4 bg-tealmed-600 text-white text-xs font-semibold px-4 h-9 rounded-lg">Cadastrar medicamento</button>
-                                                </td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </section>
-                        </div>
-
                         <!-- ABA 5: PRONTUÁRIO SOAP & HISTÓRICO -->
                         <div v-if="memberTab === 'history'" class="space-y-4 animate-fade">
                             <section class="vp-card p-5 flex justify-between items-center gap-4">
@@ -975,66 +912,6 @@
                         </div>
                     </div>
 
-                    <!-- ================= VIEW 5: MEDICAMENTOS HUB ================= -->
-                    <div v-if="activeTab === 'medicationsHub'" class="max-w-6xl mx-auto space-y-4 animate-fade">
-                        <div class="vp-card p-5 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                            <div>
-                                <h2 class="text-xl font-extrabold text-slate-900">Medicamentos em uso</h2>
-                                <p class="text-xs text-slate-500 mt-0.5">Doses do dia de cada medicamento em uso.</p>
-                            </div>
-                            <button @click="openMedicationModal()" class="bg-tealmed-600 hover:bg-tealmed-700 text-white px-4 py-2.5 rounded-md text-xs font-bold flex items-center gap-2 transition-all">
-                                <i class="fa-solid fa-plus"></i> Novo remédio
-                            </button>
-                        </div>
-
-                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                            <div class="vp-card p-5">
-                                <div class="text-xs font-semibold text-slate-500">Doses de hoje</div>
-                                <div class="text-3xl font-semibold font-mono tabular-nums text-slate-900 mt-1">{{ todayDosesDone }}<span class="text-base text-slate-400">/{{ todayDosesTotal }}</span></div>
-                                <div class="text-xs text-slate-500 mt-2">Marcadas como tomadas</div>
-                            </div>
-                                                        <div class="vp-card p-5">
-                                <div class="text-xs font-semibold text-slate-500">Remédios cadastrados</div>
-                                <div class="text-3xl font-semibold font-mono tabular-nums text-slate-900 mt-1">{{ medications.length }}</div>
-                                <div class="text-xs text-slate-500 mt-2">Uso contínuo</div>
-                            </div>
-                        </div>
-
-                        <div class="vp-card overflow-hidden">
-                            <div class="overflow-x-auto">
-                                <table class="w-full text-sm">
-                                    <thead class="bg-slate-100 text-xs text-slate-600">
-                                        <tr>
-                                            <th class="text-left px-4 py-2.5 font-semibold">Paciente</th>
-                                            <th class="text-left px-4 py-2.5 font-semibold">Medicamento</th>
-                                            <th class="text-left px-4 py-2.5 font-semibold">Dose</th>
-                                            <th class="text-left px-4 py-2.5 font-semibold">Horários</th>
-                                                                                        <th class="px-4 py-2.5"><span class="sr-only">Ações</span></th>
-                                        </tr>
-                                    </thead>
-                                    <tbody class="divide-y divide-slate-100">
-                                        <tr v-for="med in medications" :key="med.id" class="hover:bg-slate-50">
-                                            <td class="px-4 py-3 text-slate-700">{{ med.memberName }}</td>
-                                            <td class="px-4 py-3 font-semibold text-slate-900">{{ med.name }}</td>
-                                            <td class="px-4 py-3 font-mono text-xs text-slate-700">{{ med.dosage || 'Contínuo' }}</td>
-                                            <td class="px-4 py-3">
-                                                <div class="flex flex-wrap gap-1.5">
-                                                    <span v-for="t in (med.times || '08:00').split(',')" :key="t" class="font-mono text-[11px] px-2 py-0.5 rounded-md bg-slate-100 text-slate-700">{{ t.trim() }}</span>
-                                                </div>
-                                            </td>
-                                                                                        <td class="px-4 py-3 text-right whitespace-nowrap">
-                                                                                                <button @click="openMedicationModal(med)" class="text-slate-400 hover:text-tealmed-700 p-1" title="Editar"><i class="fa-solid fa-pen text-xs"></i></button>
-                                            </td>
-                                        </tr>
-                                        <tr v-if="medications.length === 0">
-                                            <td colspan="5" class="px-4 py-10 text-center text-slate-500">Nenhum medicamento em uso cadastrado.</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-
                     <!-- ================= VIEW 6: TIMELINE GLOBAL ================= -->
                     <div v-if="activeTab === 'timeline'" class="max-w-4xl mx-auto space-y-6 animate-fade">
                         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-5 rounded-2xl border border-slate-200/80 shadow-subtle">
@@ -1097,10 +974,7 @@
                         </button>
                     </div>
 
-                    <button @click="navigateTo('medicationsHub')" :class="activeTab === 'medicationsHub' ? 'text-tealmed-700 font-bold' : 'text-slate-400 font-medium'" class="flex flex-col items-center w-full transition-colors">
-                        <i class="fa-solid fa-pills text-lg mb-1"></i><span class="text-[10px]">Remédios</span>
-                    </button>
-
+                    
                     <button @click="navigateTo('members')" :class="activeTab === 'members' || activeTab === 'memberDetail' ? 'text-tealmed-700 font-bold' : 'text-slate-400 font-medium'" class="flex flex-col items-center w-full transition-colors">
                         <i class="fa-solid fa-users text-lg mb-1"></i><span class="text-[10px]">Pacientes</span>
                     </button>
