@@ -97,6 +97,14 @@
 
         /* Componentes visuais compartilhados */
         .vp-card { background: #fff; border: 1px solid #DDE2E8; border-radius: 0.625rem; box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04), 0 10px 30px -18px rgba(15, 23, 42, 0.18); }
+        .vp-badge { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 999px; font-size: 12px; font-weight: 600; white-space: nowrap; border: 1px solid transparent; }
+        .vp-badge::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; flex: none; }
+        .vp-tab { display: flex; align-items: center; gap: 8px; padding: 14px 0 12px; border-bottom: 2px solid transparent; margin-bottom: -1px; color: #55606E; font-weight: 600; font-size: 14px; white-space: nowrap; }
+        .vp-tab-on { color: #0B6E69; border-bottom-color: #0B6E69; }
+        .vp-table { width: 100%; border-collapse: collapse; font-size: 14px; color: #14202E; }
+        .vp-table th { text-align: left; font-size: 12px; font-weight: 600; padding: 10px 12px; color: #55606E; white-space: nowrap; }
+        .vp-table td { padding: 12px; border-bottom: 1px solid #EEF1F4; vertical-align: middle; }
+        .vp-table tr:last-child td { border-bottom: 0; }
         .vp-hero { background: linear-gradient(135deg, #095A56 0%, #0B6E69 100%); }
         .animate-fade { animation: vp-fade 0.35s ease both; }
         @keyframes vp-fade { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
@@ -602,73 +610,54 @@
                     </div>
 
                     <!-- ================= VIEW 3: MEMBER DETAIL (PRONTUÁRIO COMPLETO) ================= -->
-                    <div v-if="activeTab === 'memberDetail' && currentMember" class="max-w-6xl mx-auto space-y-6 animate-fade">
-                        
-                        <!-- CARD PRINCIPAL DO PACIENTE -->
-                        <div class="vp-hero text-white rounded-3xl p-6 md:p-8 shadow-xl relative overflow-hidden">
-                            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-                                <div class="flex items-center gap-5">
-                                    <button @click="activeTab = 'members'" class="w-10 h-10 rounded-2xl bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-colors" title="Voltar para a lista">
+                    <div v-if="activeTab === 'memberDetail' && currentMember" class="max-w-6xl mx-auto space-y-4 animate-fade">
+
+                        <!-- FAIXA DO PACIENTE -->
+                        <header class="vp-hero text-white rounded-2xl p-5 md:p-6 shadow-sm">
+                            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                                <div class="flex items-center gap-4 min-w-0">
+                                    <button @click="activeTab = 'members'" class="w-10 h-10 rounded-lg bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-colors flex-none" title="Voltar para a lista">
                                         <i class="fa-solid fa-arrow-left"></i>
                                     </button>
-                                    <div class="w-14 h-14 md:w-16 md:h-16 rounded-full bg-white/15 border border-white/25 flex items-center justify-center text-white text-xl font-bold flex-none">
+                                    <div class="w-12 h-12 rounded-full bg-white/15 border border-white/25 flex items-center justify-center text-lg font-bold flex-none">
                                         {{ currentMember.name.charAt(0) }}
                                     </div>
-                                    <div>
-                                        <h2 class="text-2xl md:text-3xl font-black tracking-tight">{{ currentMember.name }}</h2>
-                                        <p class="text-white/85 text-xs md:text-sm font-semibold mt-1">
-                                            {{ calculateAge(currentMember.birthDate) }} anos • Nasc: {{ formatDateOnly(currentMember.birthDate) }} • Tipo Sanguíneo: {{ currentMember.bloodType || 'N/A' }}
+                                    <div class="min-w-0">
+                                        <h2 class="text-lg md:text-xl font-semibold truncate">{{ currentMember.name }}</h2>
+                                        <p class="text-white/85 text-xs md:text-sm mt-0.5">
+                                            {{ calculateAge(currentMember.birthDate) }} anos • Nasc: {{ formatDateOnly(currentMember.birthDate) }} • Tipo sanguíneo: {{ currentMember.bloodType || 'N/A' }}
                                         </p>
                                     </div>
                                 </div>
 
-                                <div class="flex flex-wrap gap-2.5 w-full md:w-auto">
-                                    <!-- Gerar Relatório Médico PDF -->
-                                    <button @click="generateMedicalReport(currentMember)" class="flex-1 md:flex-none bg-white text-slate-900 hover:bg-slate-100 px-4 py-2.5 rounded-xl font-extrabold text-xs flex items-center justify-center gap-2 shadow-lg transition-all">
-                                        <i class="fa-solid fa-file-pdf text-red-500"></i> Relatório Clínico
+                                <div class="flex flex-wrap items-center gap-2">
+                                    <span v-if="currentMember.allergies" class="vp-badge bg-[#FCE9E7] text-[#B3261E] max-w-full truncate">Alergia: {{ currentMember.allergies }}</span>
+                                    <button @click="generateMedicalReport(currentMember)" class="bg-white/10 hover:bg-white/20 text-white h-10 px-4 rounded-lg text-xs font-semibold flex items-center gap-2 transition-colors">
+                                        <i class="fa-solid fa-file-pdf"></i> Relatório clínico
                                     </button>
-
-                                    <!-- Iniciar Consulta -->
-                                    <button @click="openConsultationModal()" class="flex-1 md:flex-none bg-white hover:bg-tealmed-50 text-tealmed-800 px-4 py-2.5 rounded-xl font-extrabold text-xs flex items-center justify-center gap-2 shadow-lg shadow-black/10 transition-all">
-                                        <i class="fa-solid fa-stethoscope"></i> Nova Consulta
+                                    <button @click="openConsultationModal()" class="bg-white hover:bg-tealmed-50 text-tealmed-800 h-10 px-4 rounded-lg text-xs font-semibold flex items-center gap-2 transition-colors">
+                                        <i class="fa-solid fa-stethoscope"></i> Nova consulta
                                     </button>
-                                    
-                                    <button @click="openMemberModal(currentMember)" class="w-10 h-10 rounded-xl bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-colors" title="Editar Dados"><i class="fa-solid fa-pen text-xs"></i></button>
-                                    <button @click="deleteMember(currentMember.id)" class="w-10 h-10 rounded-xl bg-red-500/20 hover:bg-red-500/40 text-red-300 hover:text-white flex items-center justify-center transition-colors" title="Excluir"><i class="fa-solid fa-trash text-xs"></i></button>
+                                    <button @click="openMemberModal(currentMember)" class="w-10 h-10 rounded-lg bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-colors" title="Editar dados"><i class="fa-solid fa-pen text-xs"></i></button>
+                                    <button @click="deleteMember(currentMember.id)" class="w-10 h-10 rounded-lg bg-red-500/20 hover:bg-red-500/40 text-red-200 hover:text-white flex items-center justify-center transition-colors" title="Excluir"><i class="fa-solid fa-trash text-xs"></i></button>
                                 </div>
                             </div>
+                        </header>
 
-                            <!-- SUB-ABAS DO PRONTUÁRIO -->
-                            <div class="flex border-t border-white/10 mt-6 pt-2 overflow-x-auto gap-2">
-                                <button @click="memberTab = 'info'" :class="memberTab === 'info' ? 'bg-white text-slate-900 font-bold' : 'text-slate-300 hover:bg-white/10 font-semibold'" class="px-4 py-2 rounded-xl text-xs whitespace-nowrap transition-all flex items-center gap-2">
-                                    <i class="fa-solid fa-notes-medical"></i> Resumo Clínico
-                                </button>
-                                <button @click="memberTab = 'vitals'" :class="memberTab === 'vitals' ? 'bg-white text-slate-900 font-bold' : 'text-slate-300 hover:bg-white/10 font-semibold'" class="px-4 py-2 rounded-xl text-xs whitespace-nowrap transition-all flex items-center gap-2">
-                                    <i class="fa-solid fa-heart-pulse"></i> Sinais Vitais & Gráficos
-                                </button>
-                                <button @click="memberTab = 'exams'" :class="memberTab === 'exams' ? 'bg-white text-slate-900 font-bold' : 'text-slate-300 hover:bg-white/10 font-semibold'" class="px-4 py-2 rounded-xl text-xs whitespace-nowrap transition-all flex items-center gap-2">
-                                    <i class="fa-solid fa-clipboard-check"></i> Exames & Prazos
-                                    <span v-if="getMemberOverdueExams(currentMember.id).length > 0" class="w-2 h-2 rounded-full bg-red-400"></span>
-                                </button>
-                                <button @click="memberTab = 'meds'" :class="memberTab === 'meds' ? 'bg-white text-slate-900 font-bold' : 'text-slate-300 hover:bg-white/10 font-semibold'" class="px-4 py-2 rounded-xl text-xs whitespace-nowrap transition-all flex items-center gap-2">
-                                    <i class="fa-solid fa-pills"></i> Medicamentos
-                                </button>
-                                <button @click="memberTab = 'history'" :class="memberTab === 'history' ? 'bg-white text-slate-900 font-bold' : 'text-slate-300 hover:bg-white/10 font-semibold'" class="px-4 py-2 rounded-xl text-xs whitespace-nowrap transition-all flex items-center gap-2">
-                                    <i class="fa-solid fa-timeline"></i> Prontuário SOAP
-                                </button>
-                            </div>
-                        </div>
-
-                        <!-- CONTEÚDO DAS SUB-ABAS -->
+                        <!-- ABAS DO PRONTUÁRIO -->
+                        <nav class="vp-card px-5 flex gap-6 overflow-x-auto">
+                            <button @click="memberTab = 'info'" :class="memberTab === 'info' ? 'vp-tab-on' : ''" class="vp-tab">Resumo clínico</button>
+                            <button @click="memberTab = 'vitals'" :class="memberTab === 'vitals' ? 'vp-tab-on' : ''" class="vp-tab">Sinais vitais</button>
+                            <button @click="memberTab = 'exams'" :class="memberTab === 'exams' ? 'vp-tab-on' : ''" class="vp-tab">
+                                Exames & prazos
+                                <span v-if="getMemberOverdueExams(currentMember.id).length > 0" class="w-2 h-2 rounded-full bg-[#B3261E]"></span>
+                            </button>
+                            <button @click="memberTab = 'meds'" :class="memberTab === 'meds' ? 'vp-tab-on' : ''" class="vp-tab">Medicamentos</button>
+                            <button @click="memberTab = 'history'" :class="memberTab === 'history' ? 'vp-tab-on' : ''" class="vp-tab">Prontuário SOAP</button>
+                        </nav>
 
                         <!-- ABA 1: RESUMO CLÍNICO -->
-                        <div v-if="memberTab === 'info'" class="space-y-6 animate-fade">
-                            <!-- Alerta de alergia -->
-                            <div class="rounded-2xl bg-[#B3261E] text-white p-5 shadow-sm">
-                                <div class="text-[11px] font-bold uppercase tracking-wider opacity-90"><i class="fa-solid fa-triangle-exclamation mr-1"></i> Alergias</div>
-                                <p class="font-semibold text-base mt-1 whitespace-pre-line">{{ currentMember.allergies || 'Nenhuma alergia conhecida registrada.' }}</p>
-                            </div>
-
+                        <div v-if="memberTab === 'info'" class="space-y-4 animate-fade">
                             <!-- Sinais vitais mais recentes -->
                             <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
                                 <div v-for="c in vitalCards(currentMember.id)" :key="c.label" class="vp-card p-4 border-t-4 border-t-[#1E4FBF]">
@@ -678,266 +667,267 @@
                                 </div>
                             </div>
 
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <div class="vp-card p-5 border-t-4 border-t-[#1E4FBF]">
-                                    <h4 class="font-semibold text-slate-900 text-sm mb-3">Comorbidades & histórico</h4>
-                                    <p class="text-sm text-slate-700 whitespace-pre-line leading-relaxed">{{ currentMember.comorbidities || 'Nenhuma comorbidade registrada.' }}</p>
-                                </div>
+                            <div class="grid grid-cols-1 lg:grid-cols-[minmax(0,1.25fr)_minmax(0,1fr)] gap-4 items-stretch">
+                                <!-- Medicações em uso -->
+                                <section class="vp-card p-5 min-w-0">
+                                    <div class="flex justify-between items-center mb-3.5">
+                                        <h2 class="flex items-center gap-2 font-semibold text-base text-slate-900"><span class="w-2 h-2 rounded-full bg-[#6D3BB0]"></span> Medicações em uso</h2>
+                                        <button @click="memberTab = 'meds'" class="text-sm font-semibold text-tealmed-700 hover:underline">Ver todas</button>
+                                    </div>
+                                    <div class="overflow-x-auto">
+                                        <table class="vp-table">
+                                            <thead>
+                                                <tr class="bg-[#F1EAFA] text-[#6D3BB0]"><th>Medicamento</th><th>Dose</th><th>Horários</th><th>Estoque</th></tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr v-for="med in getMemberMeds(currentMember.id)" :key="med.id">
+                                                    <td class="font-semibold">{{ med.name }}</td>
+                                                    <td class="font-mono">{{ med.dosage || '—' }}</td>
+                                                    <td class="font-mono font-medium text-[#6D3BB0]">{{ med.times || '08:00' }}</td>
+                                                    <td class="font-mono">
+                                                        <span v-if="med.stockTotal" :class="calculatePillsLeft(med) <= 5 ? 'text-[#B3261E] font-semibold' : ''">{{ calculatePillsLeft(med) }} un. · ~{{ calculateDaysLeft(med) }} dias</span>
+                                                        <span v-else class="text-slate-400">—</span>
+                                                    </td>
+                                                </tr>
+                                                <tr v-if="getMemberMeds(currentMember.id).length === 0">
+                                                    <td colspan="4" class="text-center text-slate-500 py-8">Nenhum medicamento cadastrado.</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </section>
 
-                                <div class="vp-card p-5 border-t-4 border-t-[#6D3BB0]">
-                                    <h4 class="font-semibold text-slate-900 text-sm mb-3">Medicamentos em uso contínuo</h4>
-                                    <p class="text-sm text-slate-700 whitespace-pre-line leading-relaxed">{{ currentMember.medications || 'Nenhum medicamento registrado no cadastro.' }}</p>
-                                </div>
+                                <!-- Evolução -->
+                                <section class="vp-card p-5 min-w-0 flex flex-col">
+                                    <h2 class="flex items-center gap-2 font-semibold text-base text-slate-900 mb-3.5"><span class="w-2 h-2 rounded-full bg-[#0B6E69]"></span> Evolução</h2>
+                                    <div v-if="getLatestEvolution(currentMember.id)" class="border-l-[3px] border-[#0B6E69] pl-3.5 py-1">
+                                        <div class="font-mono text-xs text-slate-500">{{ formatDate(getLatestEvolution(currentMember.id).date) }}</div>
+                                        <div class="mt-2.5 grid gap-1.5 text-sm text-slate-800">
+                                            <p v-if="getLatestEvolution(currentMember.id).anamnesis"><b class="inline-block w-5 text-[#1E4FBF]">S:</b> {{ getLatestEvolution(currentMember.id).anamnesis }}</p>
+                                            <p v-if="getLatestEvolution(currentMember.id).exam"><b class="inline-block w-5 text-[#6D3BB0]">O:</b> {{ getLatestEvolution(currentMember.id).exam }}</p>
+                                            <p v-if="getLatestEvolution(currentMember.id).diagnosis"><b class="inline-block w-5 text-[#0B6E69]">A:</b> {{ getLatestEvolution(currentMember.id).diagnosis }}</p>
+                                            <p v-if="getLatestEvolution(currentMember.id).plan"><b class="inline-block w-5 text-[#137A4B]">P:</b> {{ getLatestEvolution(currentMember.id).plan }}</p>
+                                        </div>
+                                    </div>
+                                    <div v-else class="flex-1 flex items-center justify-center text-sm text-slate-500 text-center py-8">Nenhuma evolução registrada.</div>
+
+                                    <div class="mt-auto pt-4 border-t border-[#DDE2E8] grid gap-3">
+                                        <div class="text-xs text-slate-500">Última evolução: {{ getLatestEvolution(currentMember.id) ? formatDate(getLatestEvolution(currentMember.id).date) : 'nenhuma' }}</div>
+                                        <div class="grid grid-cols-2 gap-2.5">
+                                            <button @click="openConsultationModal()" class="col-span-2 bg-tealmed-600 hover:bg-tealmed-700 text-white h-11 rounded-lg font-semibold text-sm transition-colors">Nova evolução</button>
+                                            <button @click="memberTab = 'history'" class="h-11 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-800 font-semibold text-sm transition-colors">Histórico</button>
+                                        </div>
+                                    </div>
+                                </section>
                             </div>
+
+                            <section class="vp-card p-5 border-t-4 border-t-[#1E4FBF]">
+                                <h2 class="font-semibold text-base text-slate-900 mb-2">Comorbidades e histórico</h2>
+                                <p class="text-sm text-slate-700 whitespace-pre-line leading-relaxed">{{ currentMember.comorbidities || 'Nenhuma comorbidade registrada.' }}</p>
+                            </section>
                         </div>
 
-                        <!-- ABA 2: SINAIS VITAIS COM GRÁFICOS -->
-                        <div v-if="memberTab === 'vitals'" class="space-y-6 animate-fade">
-                            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-5 rounded-2xl border border-slate-200/80 shadow-subtle">
+                        <!-- ABA 2: SINAIS VITAIS -->
+                        <div v-if="memberTab === 'vitals'" class="space-y-4 animate-fade">
+                            <section class="vp-card p-5 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                                 <div>
-                                    <h3 class="text-lg font-extrabold text-slate-900">Monitor de Sinais Vitais & Biometria</h3>
-                                    <p class="text-xs text-slate-500">Acompanhe a pressão arterial, glicemia, saturação de oxigênio e peso.</p>
+                                    <h2 class="flex items-center gap-2 font-semibold text-base text-slate-900"><span class="w-2 h-2 rounded-full bg-[#1E4FBF]"></span> Sinais vitais e biometria</h2>
+                                    <p class="text-xs text-slate-500 mt-1">Pressão arterial, glicemia, saturação de oxigênio e peso.</p>
                                 </div>
-                                <button @click="openVitalModal(currentMember.id)" class="bg-tealmed-600 hover:bg-tealmed-700 text-white px-4 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2 shadow-md shadow-tealmed-600/20 transition-all">
-                                    <i class="fa-solid fa-plus"></i> Registrar Aferição
+                                <button @click="openVitalModal(currentMember.id)" class="bg-tealmed-600 hover:bg-tealmed-700 text-white h-10 px-4 rounded-lg text-sm font-semibold flex items-center gap-2 transition-colors">
+                                    <i class="fa-solid fa-plus"></i> Registrar aferição
                                 </button>
-                            </div>
+                            </section>
 
-                            <!-- Gráfico de Tendência -->
-                            <div class="bg-white p-6 rounded-3xl border border-slate-200/80 shadow-subtle">
+                            <section class="vp-card p-5">
                                 <div class="flex items-center justify-between mb-4">
-                                    <h4 class="font-extrabold text-slate-900 text-sm">Evolução Gráfica (Pressão Arterial mmHg)</h4>
-                                    <span class="text-xs text-slate-400 font-medium">Últimas aferições</span>
+                                    <h2 class="font-semibold text-base text-slate-900">Evolução gráfica (pressão arterial, mmHg)</h2>
+                                    <span class="text-xs text-slate-500">Últimas aferições</span>
                                 </div>
                                 <div class="h-64 w-full relative">
                                     <canvas id="vitalsChart"></canvas>
                                 </div>
-                            </div>
+                            </section>
 
-                            <!-- Tabela de Últimas Medições -->
-                            <div class="bg-white rounded-2xl border border-slate-200/80 shadow-subtle overflow-hidden">
-                                <div class="p-4 border-b border-slate-100 bg-slate-50 flex justify-between items-center">
-                                    <span class="font-extrabold text-slate-800 text-xs uppercase tracking-wider">Histórico de Aferições</span>
-                                    <span class="text-xs text-slate-500 font-medium">{{ getMemberVitals(currentMember.id).length }} registros</span>
+                            <section class="vp-card overflow-hidden">
+                                <div class="px-5 py-3.5 border-b border-[#DDE2E8] flex justify-between items-center">
+                                    <span class="font-semibold text-sm text-slate-900">Histórico de aferições</span>
+                                    <span class="text-xs text-slate-500">{{ getMemberVitals(currentMember.id).length }} registros</span>
                                 </div>
-                                <div class="divide-y divide-slate-100 overflow-x-auto">
-                                    <div v-for="v in getMemberVitals(currentMember.id)" :key="v.id" class="p-4 flex items-center justify-between hover:bg-slate-50 transition-colors">
-                                        <div class="flex items-center gap-4">
-                                            <div class="w-10 h-10 rounded-xl bg-tealmed-50 text-tealmed-700 flex items-center justify-center font-bold text-sm">
-                                                <i class="fa-solid fa-heart-pulse"></i>
-                                            </div>
-                                            <div>
-                                                <div class="flex items-center gap-2">
-                                                    <span v-if="v.systolic && v.diastolic" class="font-black text-slate-900 text-base">{{ v.systolic }}/{{ v.diastolic }} mmHg</span>
-                                                    <span v-if="v.glucose" class="text-xs font-bold text-amber-700 bg-amber-50 px-2 py-0.5 rounded-md border border-amber-100">Glicemia: {{ v.glucose }} mg/dL</span>
-                                                    <span v-if="v.spo2" class="text-xs font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded-md border border-blue-100">SpO2: {{ v.spo2 }}%</span>
-                                                    <span v-if="v.weight" class="text-xs font-bold text-purple-700 bg-purple-50 px-2 py-0.5 rounded-md border border-purple-100">Peso: {{ v.weight }} kg</span>
-                                                </div>
-                                                <p class="text-xs text-slate-400 mt-0.5">{{ formatDate(v.date) }} • {{ v.notes || 'Sem observações' }}</p>
-                                            </div>
-                                        </div>
-                                        <button @click="deleteVital(v.id)" class="text-slate-300 hover:text-red-500 p-2 transition-colors"><i class="fa-solid fa-trash"></i></button>
-                                    </div>
-                                    <div v-if="getMemberVitals(currentMember.id).length === 0" class="p-8 text-center text-slate-400 text-xs font-medium">
-                                        Nenhum registro de sinais vitais. Clique em "Registrar Aferição" acima para começar.
-                                    </div>
+                                <div class="overflow-x-auto">
+                                    <table class="vp-table">
+                                        <thead>
+                                            <tr class="bg-[#E3F2F1] text-[#0B6E69]"><th>Data</th><th>Pressão</th><th>Glicemia</th><th>SpO₂</th><th>Peso</th><th>Observações</th><th></th></tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr v-for="v in getMemberVitals(currentMember.id)" :key="v.id">
+                                                <td class="font-mono text-xs whitespace-nowrap">{{ formatDate(v.date) }}</td>
+                                                <td class="font-mono">{{ v.systolic && v.diastolic ? v.systolic + '/' + v.diastolic + ' mmHg' : '—' }}</td>
+                                                <td class="font-mono">{{ v.glucose ? v.glucose + ' mg/dL' : '—' }}</td>
+                                                <td class="font-mono">{{ v.spo2 ? v.spo2 + '%' : '—' }}</td>
+                                                <td class="font-mono">{{ v.weight ? v.weight + ' kg' : '—' }}</td>
+                                                <td class="text-slate-600">{{ v.notes || '—' }}</td>
+                                                <td class="text-right"><button @click="deleteVital(v.id)" class="text-slate-400 hover:text-[#B3261E] p-1" title="Excluir"><i class="fa-solid fa-trash"></i></button></td>
+                                            </tr>
+                                            <tr v-if="getMemberVitals(currentMember.id).length === 0">
+                                                <td colspan="7" class="text-center text-slate-500 py-8">Nenhum registro de sinais vitais. Use "Registrar aferição" para começar.</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
                                 </div>
-                            </div>
+                            </section>
                         </div>
 
                         <!-- ABA 3: EXAMES & PRAZOS -->
-                        <div v-if="memberTab === 'exams'" class="space-y-6 animate-fade">
-                            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-5 rounded-2xl border border-slate-200/80 shadow-subtle">
+                        <div v-if="memberTab === 'exams'" class="space-y-4 animate-fade">
+                            <section class="vp-card p-5 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                                 <div>
-                                    <h3 class="text-lg font-extrabold text-slate-900">Programação de Exames & Checkups</h3>
-                                    <p class="text-xs text-slate-500">Defina a periodicidade de cada exame para receber alertas antes do vencimento.</p>
+                                    <h2 class="flex items-center gap-2 font-semibold text-base text-slate-900"><span class="w-2 h-2 rounded-full bg-[#0E7490]"></span> Exames e checkups periódicos</h2>
+                                    <p class="text-xs text-slate-500 mt-1">Defina a periodicidade de cada exame para receber alertas antes do vencimento.</p>
                                 </div>
-                                <button @click="openPeriodicExamModal(null, currentMember.id)" class="bg-tealmed-600 hover:bg-tealmed-700 text-white px-4 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2 shadow-md shadow-tealmed-600/20 transition-all">
-                                    <i class="fa-solid fa-plus"></i> Programar Exame
+                                <button @click="openPeriodicExamModal(null, currentMember.id)" class="bg-tealmed-600 hover:bg-tealmed-700 text-white h-10 px-4 rounded-lg text-sm font-semibold flex items-center gap-2 transition-colors">
+                                    <i class="fa-solid fa-plus"></i> Programar exame
                                 </button>
-                            </div>
+                            </section>
 
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div v-for="exam in getMemberExams(currentMember.id)" :key="exam.id" class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-subtle hover:border-tealmed-400 transition-all flex flex-col justify-between">
-                                    <div>
-                                        <div class="flex justify-between items-start mb-2">
-                                            <span class="text-xs font-bold px-2.5 py-1 rounded-lg border uppercase tracking-wider" :class="getExamStatusBadge(exam).badgeClass">
-                                                {{ getExamStatusBadge(exam).label }}
-                                            </span>
-                                            <div class="flex items-center gap-1">
-                                                <button @click="openPeriodicExamModal(exam)" class="text-slate-400 hover:text-tealmed-600 p-1.5"><i class="fa-solid fa-pen text-xs"></i></button>
-                                                <button @click="deletePeriodicExam(exam.id)" class="text-slate-400 hover:text-red-500 p-1.5"><i class="fa-solid fa-trash text-xs"></i></button>
-                                            </div>
-                                        </div>
-
-                                        <h4 class="font-extrabold text-slate-900 text-base mt-2">{{ exam.title }}</h4>
-                                        <p class="text-xs text-slate-500 font-semibold mt-1">Periodicidade: A cada {{ exam.recurrenceMonths }} meses</p>
-                                        <p v-if="exam.doctorOrLab" class="text-xs text-tealmed-700 font-medium mt-0.5"><i class="fa-solid fa-user-doctor mr-1"></i> {{ exam.doctorOrLab }}</p>
-                                        
-                                        <div class="mt-4 pt-3 border-t border-slate-100 flex justify-between text-xs text-slate-500">
-                                            <div>
-                                                <span class="block text-[10px] text-slate-400 uppercase font-bold">Última Vez</span>
-                                                <span class="font-bold text-slate-700">{{ exam.lastDoneDate ? formatDateOnly(exam.lastDoneDate) : 'Nunca realizado' }}</span>
-                                            </div>
-                                            <div class="text-right">
-                                                <span class="block text-[10px] text-slate-400 uppercase font-bold">Próximo Vencimento</span>
-                                                <span class="font-bold" :class="getExamStatusBadge(exam).textClass">{{ formatDateOnly(exam.nextDueDate) }}</span>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <!-- Botão Marcar Como Realizado Hoje -->
-                                    <div class="mt-5 pt-3 border-t border-slate-100 flex gap-2">
-                                        <button @click="markExamAsCompleted(exam)" class="flex-1 bg-tealmed-50 hover:bg-tealmed-600 text-tealmed-700 hover:text-white py-2 rounded-xl text-xs font-bold transition-colors flex items-center justify-center gap-1.5">
-                                            <i class="fa-solid fa-check"></i> Realizado Hoje
-                                        </button>
-                                        <button @click="addToCalendar({ title: `Pedir Exame: ${exam.title}`, date: exam.nextDueDate, memberName: currentMember.name, details: `Checkup de ${exam.title} periódico.` })" class="px-3 bg-slate-50 hover:bg-slate-100 text-slate-600 rounded-xl text-xs font-bold" title="Adicionar no Google Agenda">
-                                            <i class="fa-solid fa-calendar-plus"></i>
-                                        </button>
-                                    </div>
+                            <section class="vp-card overflow-hidden">
+                                <div class="overflow-x-auto">
+                                    <table class="vp-table">
+                                        <thead>
+                                            <tr class="bg-[#E0F4F8] text-[#0E7490]"><th>Exame</th><th>Periodicidade</th><th>Última vez</th><th>Próximo vencimento</th><th>Status</th><th></th></tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr v-for="exam in getMemberExams(currentMember.id)" :key="exam.id">
+                                                <td>
+                                                    <div class="font-semibold">{{ exam.title }}</div>
+                                                    <div v-if="exam.doctorOrLab" class="text-xs text-slate-500 mt-0.5">{{ exam.doctorOrLab }}</div>
+                                                </td>
+                                                <td class="whitespace-nowrap">A cada {{ exam.recurrenceMonths }} meses</td>
+                                                <td class="font-mono whitespace-nowrap">{{ exam.lastDoneDate ? formatDateOnly(exam.lastDoneDate) : 'Nunca' }}</td>
+                                                <td class="font-mono whitespace-nowrap" :class="getExamStatusBadge(exam).textClass">{{ formatDateOnly(exam.nextDueDate) }}</td>
+                                                <td><span class="vp-badge" :class="getExamStatusBadge(exam).badgeClass">{{ getExamStatusBadge(exam).label }}</span></td>
+                                                <td class="text-right whitespace-nowrap">
+                                                    <button @click="markExamAsCompleted(exam)" class="bg-[#E0F4F8] hover:bg-[#0E7490] hover:text-white text-[#0E7490] h-8 px-3 rounded-lg text-xs font-semibold transition-colors"><i class="fa-solid fa-check mr-1"></i> Realizado hoje</button>
+                                                    <button @click="addToCalendar({ title: `Pedir Exame: ${exam.title}`, date: exam.nextDueDate, memberName: currentMember.name, details: `Checkup de ${exam.title} periódico.` })" class="text-slate-400 hover:text-tealmed-700 p-1.5 ml-1" title="Adicionar no Google Agenda"><i class="fa-solid fa-calendar-plus"></i></button>
+                                                    <button @click="openPeriodicExamModal(exam)" class="text-slate-400 hover:text-tealmed-700 p-1.5" title="Editar"><i class="fa-solid fa-pen text-xs"></i></button>
+                                                    <button @click="deletePeriodicExam(exam.id)" class="text-slate-400 hover:text-[#B3261E] p-1.5" title="Excluir"><i class="fa-solid fa-trash text-xs"></i></button>
+                                                </td>
+                                            </tr>
+                                            <tr v-if="getMemberExams(currentMember.id).length === 0">
+                                                <td colspan="6" class="text-center py-8">
+                                                    <p class="text-slate-700 font-semibold">Nenhum exame periódico configurado.</p>
+                                                    <p class="text-slate-500 text-xs mt-1">Cadastre exames como Hemograma, Glicemia, PSA ou Ecocardiograma para receber lembretes.</p>
+                                                    <button @click="openPeriodicExamModal(null, currentMember.id)" class="mt-4 bg-tealmed-600 text-white text-xs font-semibold px-4 h-9 rounded-lg">Configurar primeiro exame</button>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
                                 </div>
-
-                                <div v-if="getMemberExams(currentMember.id).length === 0" class="col-span-full bg-white p-8 rounded-2xl border border-slate-200/80 text-center">
-                                    <div class="w-12 h-12 rounded-2xl bg-tealmed-50 text-tealmed-600 flex items-center justify-center mx-auto mb-3 text-xl"><i class="fa-solid fa-clipboard-check"></i></div>
-                                    <p class="text-slate-700 font-bold text-sm">Nenhum exame periódico configurado.</p>
-                                    <p class="text-slate-400 text-xs mt-1">Cadastre exames como Hemograma, Glicemia, PSA ou Ecocardiograma para receber lembretes.</p>
-                                    <button @click="openPeriodicExamModal(null, currentMember.id)" class="mt-4 bg-tealmed-600 text-white text-xs font-bold px-4 py-2 rounded-xl">Configurar Primeiro Exame</button>
-                                </div>
-                            </div>
+                            </section>
                         </div>
 
                         <!-- ABA 4: MEDICAMENTOS & ESTOQUE -->
-                        <div v-if="memberTab === 'meds'" class="space-y-6 animate-fade">
-                            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-5 rounded-2xl border border-slate-200/80 shadow-subtle">
+                        <div v-if="memberTab === 'meds'" class="space-y-4 animate-fade">
+                            <section class="vp-card p-5 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                                 <div>
-                                    <h3 class="text-lg font-extrabold text-slate-900">Medicamentos & Controle de Estoque</h3>
-                                    <p class="text-xs text-slate-500">Horários diários e alerta de reposição quando os comprimidos estiverem acabando.</p>
+                                    <h2 class="flex items-center gap-2 font-semibold text-base text-slate-900"><span class="w-2 h-2 rounded-full bg-[#6D3BB0]"></span> Medicamentos e controle de estoque</h2>
+                                    <p class="text-xs text-slate-500 mt-1">Horários diários e alerta de reposição quando os comprimidos estiverem acabando.</p>
                                 </div>
-                                <button @click="openMedicationModal(null, currentMember.id)" class="bg-tealmed-600 hover:bg-tealmed-700 text-white px-4 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2 shadow-md shadow-tealmed-600/20 transition-all">
-                                    <i class="fa-solid fa-plus"></i> Novo Medicamento
+                                <button @click="openMedicationModal(null, currentMember.id)" class="bg-tealmed-600 hover:bg-tealmed-700 text-white h-10 px-4 rounded-lg text-sm font-semibold flex items-center gap-2 transition-colors">
+                                    <i class="fa-solid fa-plus"></i> Novo medicamento
                                 </button>
-                            </div>
+                            </section>
 
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div v-for="med in getMemberMeds(currentMember.id)" :key="med.id" class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-subtle hover:border-tealmed-400 transition-all flex flex-col justify-between">
-                                    <div>
-                                        <div class="flex justify-between items-start mb-2">
-                                            <span class="text-xs font-bold px-2.5 py-0.5 rounded-md bg-emerald-50 text-emerald-700 border border-emerald-100 uppercase">
-                                                {{ med.dosage || 'Uso Contínuo' }}
-                                            </span>
-                                            <div class="flex items-center gap-1">
-                                                <button @click="openMedicationModal(med)" class="text-slate-400 hover:text-tealmed-600 p-1.5"><i class="fa-solid fa-pen text-xs"></i></button>
-                                                <button @click="deleteMedication(med.id)" class="text-slate-400 hover:text-red-500 p-1.5"><i class="fa-solid fa-trash text-xs"></i></button>
-                                            </div>
-                                        </div>
-
-                                        <h4 class="font-extrabold text-slate-900 text-base">{{ med.name }}</h4>
-                                        <p class="text-xs text-slate-600 mt-1 font-medium"><i class="fa-regular fa-clock text-tealmed-600 mr-1"></i> Horários: {{ med.times || '08:00' }}</p>
-                                    <div v-if="doseSlots(med).length" class="mt-3 flex flex-wrap items-center gap-1.5">
-                                        <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 mr-1">Hoje</span>
-                                        <button v-for="slot in doseSlots(med)" :key="slot.time" @click="toggleDose(med, slot.time)" :class="slot.taken ? 'bg-emerald-500 border-emerald-500 text-white' : slot.late ? 'bg-amber-50 border-amber-300 text-amber-800' : 'bg-white border-slate-200 text-slate-600 hover:border-tealmed-400'" class="px-2.5 py-1 rounded-lg border text-[11px] font-bold flex items-center gap-1.5 transition-all active:scale-95">
-                                            <i :class="slot.taken ? 'fa-solid fa-circle-check' : 'fa-regular fa-circle'"></i>{{ slot.time }}
-                                        </button>
-                                    </div>
-                                        <p v-if="med.instructions" class="text-xs text-slate-500 mt-1 italic">{{ med.instructions }}</p>
-
-                                        <!-- Barra de Estoque -->
-                                        <div v-if="med.stockTotal" class="mt-4 pt-3 border-t border-slate-100">
-                                            <div class="flex justify-between text-xs font-bold mb-1.5">
-                                                <span class="text-slate-500">Estoque de Comprimidos</span>
-                                                <span :class="calculatePillsLeft(med) <= 5 ? 'text-rose-600' : 'text-slate-800'">
-                                                    {{ calculatePillsLeft(med) }} restantes (~{{ calculateDaysLeft(med) }} dias)
-                                                </span>
-                                            </div>
-                                            <div class="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
-                                                <div class="h-full rounded-full transition-all" :class="calculatePillsLeft(med) <= 5 ? 'bg-rose-500' : 'bg-emerald-500'" :style="{ width: Math.min(100, (calculatePillsLeft(med) / (med.stockTotal || 30)) * 100) + '%' }"></div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="mt-4 pt-3 border-t border-slate-100 flex gap-2">
-                                        <button @click="refillStock(med)" class="flex-1 bg-slate-100 hover:bg-tealmed-50 text-slate-700 hover:text-tealmed-700 py-2 rounded-xl text-xs font-bold transition-colors">
-                                            <i class="fa-solid fa-cart-plus mr-1"></i> Comprei Nova Caixa
-                                        </button>
-                                    </div>
+                            <section class="vp-card overflow-hidden">
+                                <div class="overflow-x-auto">
+                                    <table class="vp-table">
+                                        <thead>
+                                            <tr class="bg-[#F1EAFA] text-[#6D3BB0]"><th>Medicamento</th><th>Dose</th><th>Doses de hoje</th><th>Estoque</th><th></th></tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr v-for="med in getMemberMeds(currentMember.id)" :key="med.id">
+                                                <td>
+                                                    <div class="font-semibold">{{ med.name }}</div>
+                                                    <div v-if="med.instructions" class="text-xs text-slate-500 mt-0.5 italic">{{ med.instructions }}</div>
+                                                </td>
+                                                <td class="font-mono whitespace-nowrap">{{ med.dosage || 'Uso contínuo' }}</td>
+                                                <td>
+                                                    <div v-if="doseSlots(med).length" class="flex flex-wrap gap-1.5">
+                                                        <button v-for="slot in doseSlots(med)" :key="slot.time" @click="toggleDose(med, slot.time)" :class="slot.taken ? 'bg-[#137A4B] border-[#137A4B] text-white' : slot.late ? 'bg-[#FDF3E1] border-[#9A5B00] text-[#9A5B00]' : 'bg-white border-slate-300 text-slate-700 hover:border-tealmed-500'" class="h-8 px-2.5 rounded-lg border text-xs font-mono font-medium flex items-center gap-1.5 transition-colors">
+                                                            <i :class="slot.taken ? 'fa-solid fa-circle-check' : 'fa-regular fa-circle'"></i>{{ slot.time }}
+                                                        </button>
+                                                    </div>
+                                                    <span v-else class="text-slate-400 text-xs">Sem horários</span>
+                                                </td>
+                                                <td class="min-w-[160px]">
+                                                    <div v-if="med.stockTotal">
+                                                        <div class="font-mono text-xs mb-1.5" :class="calculatePillsLeft(med) <= 5 ? 'text-[#B3261E] font-semibold' : 'text-slate-700'">{{ calculatePillsLeft(med) }} restantes · ~{{ calculateDaysLeft(med) }} dias</div>
+                                                        <div class="w-full h-2 bg-[#EEF1F4] rounded-full overflow-hidden">
+                                                            <div class="h-full rounded-full transition-all" :class="calculatePillsLeft(med) <= 5 ? 'bg-[#B3261E]' : 'bg-[#137A4B]'" :style="{ width: Math.min(100, (calculatePillsLeft(med) / (med.stockTotal || 30)) * 100) + '%' }"></div>
+                                                        </div>
+                                                    </div>
+                                                    <span v-else class="text-slate-400 text-xs">Não controlado</span>
+                                                </td>
+                                                <td class="text-right whitespace-nowrap">
+                                                    <button @click="refillStock(med)" class="bg-[#EEF1F4] hover:bg-[#E3F2F1] text-slate-700 hover:text-tealmed-700 h-8 px-3 rounded-lg text-xs font-semibold transition-colors"><i class="fa-solid fa-cart-plus mr-1"></i> Nova caixa</button>
+                                                    <button @click="openMedicationModal(med)" class="text-slate-400 hover:text-tealmed-700 p-1.5 ml-1" title="Editar"><i class="fa-solid fa-pen text-xs"></i></button>
+                                                    <button @click="deleteMedication(med.id)" class="text-slate-400 hover:text-[#B3261E] p-1.5" title="Excluir"><i class="fa-solid fa-trash text-xs"></i></button>
+                                                </td>
+                                            </tr>
+                                            <tr v-if="getMemberMeds(currentMember.id).length === 0">
+                                                <td colspan="5" class="text-center py-8">
+                                                    <p class="text-slate-700 font-semibold">Nenhum medicamento cadastrado para acompanhamento.</p>
+                                                    <button @click="openMedicationModal(null, currentMember.id)" class="mt-4 bg-tealmed-600 text-white text-xs font-semibold px-4 h-9 rounded-lg">Cadastrar medicamento</button>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
                                 </div>
-
-                                <div v-if="getMemberMeds(currentMember.id).length === 0" class="col-span-full bg-white p-8 rounded-2xl border border-slate-200/80 text-center">
-                                    <div class="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto mb-3 text-xl"><i class="fa-solid fa-pills"></i></div>
-                                    <p class="text-slate-700 font-bold text-sm">Nenhum medicamento cadastrado para acompanhamento de estoque.</p>
-                                    <button @click="openMedicationModal(null, currentMember.id)" class="mt-4 bg-tealmed-600 text-white text-xs font-bold px-4 py-2 rounded-xl">Cadastrar Medicamento</button>
-                                </div>
-                            </div>
+                            </section>
                         </div>
 
                         <!-- ABA 5: PRONTUÁRIO SOAP & HISTÓRICO -->
-                        <div v-if="memberTab === 'history'" class="space-y-6 animate-fade">
-                            <div class="flex justify-between items-center bg-white p-4 rounded-2xl border border-slate-200/80 shadow-subtle">
-                                <h3 class="font-extrabold text-slate-900 text-base">Histórico de Consultas & Registros</h3>
-                                <button @click="openRecordModal(null, currentMember.id)" class="text-xs bg-slate-100 hover:bg-tealmed-50 text-slate-700 hover:text-tealmed-700 font-bold px-3 py-2 rounded-xl transition-colors">
-                                    + Lembrete / Nota Rápida
+                        <div v-if="memberTab === 'history'" class="space-y-4 animate-fade">
+                            <section class="vp-card p-5 flex justify-between items-center gap-4">
+                                <h2 class="font-semibold text-base text-slate-900">Histórico de consultas e registros</h2>
+                                <button @click="openRecordModal(null, currentMember.id)" class="bg-tealmed-600 hover:bg-tealmed-700 text-white h-10 px-4 rounded-lg text-sm font-semibold flex items-center gap-2 transition-colors">
+                                    <i class="fa-solid fa-plus"></i> Lembrete / nota
                                 </button>
-                            </div>
+                            </section>
 
-                            <div class="space-y-6">
-                                <div v-for="record in getMemberRecords(currentMember.id)" :key="record.id" class="relative pl-8 border-l-2 border-slate-200 pb-2 last:pb-0">
-                                    <div class="absolute -left-[9px] top-0 w-4 h-4 rounded-full border-2 border-white ring-2 ring-white" :class="getCategoryColor(record.category)"></div>
-                                    
-                                    <!-- CARD CONSULTA CLÍNICA (SOAP) -->
-                                    <div v-if="record.category === 'Consulta Clínica'" class="bg-white rounded-2xl border border-slate-200/80 shadow-subtle hover:shadow-md transition-shadow overflow-hidden group">
-                                        <div class="bg-slate-50 border-b border-slate-100 p-4 flex justify-between items-center">
-                                            <div class="flex items-center gap-2.5">
-                                                <span class="text-xs font-extrabold uppercase tracking-wider text-tealmed-800 bg-tealmed-50 px-2.5 py-1 rounded-lg border border-tealmed-100">
-                                                    <i class="fa-solid fa-stethoscope mr-1"></i> Consulta Clínica
-                                                </span>
-                                                <span class="text-xs text-slate-400 font-semibold">{{ formatDate(record.date) }}</span>
-                                            </div>
-                                            <button @click="deleteRecord(record.id)" class="text-slate-300 hover:text-red-500 p-1"><i class="fa-solid fa-trash"></i></button>
-                                        </div>
-                                        <div class="p-6 grid grid-cols-1 gap-4">
-                                            <div class="soap-section" v-if="record.anamnesis">
-                                                <h5 class="text-blue-700"><i class="fa-solid fa-comment-medical mr-1"></i> Anamnese & Queixa (S)</h5>
-                                                <p class="text-slate-700">{{ record.anamnesis }}</p>
-                                            </div>
-                                            <div class="soap-section" v-if="record.exam">
-                                                <h5 class="text-purple-700"><i class="fa-solid fa-magnifying-glass mr-1"></i> Exame Físico / Sinais (O)</h5>
-                                                <p class="text-slate-700">{{ record.exam }}</p>
-                                            </div>
-                                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
-                                                <div class="soap-section bg-amber-50/70 p-4 rounded-xl border border-amber-100" v-if="record.diagnosis">
-                                                    <h5 class="text-amber-800"><i class="fa-solid fa-clipboard-check mr-1"></i> Diagnóstico / Avaliação (A)</h5>
-                                                    <p class="font-bold text-slate-800">{{ record.diagnosis }}</p>
-                                                </div>
-                                                <div class="soap-section bg-tealmed-50/70 p-4 rounded-xl border border-tealmed-100" v-if="record.plan">
-                                                    <h5 class="text-tealmed-800"><i class="fa-solid fa-clipboard-list mr-1"></i> Conduta & Prescrição (P)</h5>
-                                                    <p class="font-bold text-slate-800">{{ record.plan }}</p>
-                                                </div>
-                                            </div>
-                                        </div>
+                            <section v-for="record in getMemberRecords(currentMember.id)" :key="record.id" class="vp-card overflow-hidden">
+                                <div class="px-5 py-3 border-b border-[#DDE2E8] flex justify-between items-center gap-3 bg-[#F6F7F9]">
+                                    <div class="flex items-center gap-2.5 min-w-0">
+                                        <span class="w-2 h-2 rounded-full flex-none" :class="getCategoryColor(record.category)"></span>
+                                        <span class="text-xs font-semibold uppercase tracking-wider text-slate-600">{{ record.category }}</span>
+                                        <span class="font-mono text-xs text-slate-500">{{ formatDate(record.date) }}</span>
                                     </div>
-
-                                    <!-- CARD LEMBRETE / EXAME / EVENTO -->
-                                    <div v-else class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-subtle group hover:border-tealmed-300 transition-colors">
-                                        <div class="flex justify-between items-start mb-2">
-                                            <span class="text-[10px] font-extrabold uppercase tracking-wider text-slate-500 bg-slate-100 px-2.5 py-0.5 rounded-full">{{ record.category }}</span>
-                                            <div class="flex gap-2 items-center">
-                                                <span class="text-xs text-slate-400 font-semibold">{{ formatDate(record.date) }}</span>
-                                                <button v-if="record.category === 'Lembrete'" @click.stop="addToCalendar(record)" class="text-slate-400 hover:text-tealmed-600" title="Adicionar ao Google Calendar"><i class="fa-solid fa-calendar-plus"></i></button>
-                                                <button @click="deleteRecord(record.id)" class="text-slate-300 hover:text-red-500"><i class="fa-solid fa-trash"></i></button>
-                                            </div>
-                                        </div>
-                                        <h4 class="font-extrabold text-slate-800 text-base">{{ record.title }}</h4>
-                                        <p class="text-xs text-slate-600 mt-1 whitespace-pre-line leading-relaxed">{{ record.details }}</p>
+                                    <div class="flex items-center gap-1 flex-none">
+                                        <button v-if="record.category === 'Lembrete'" @click.stop="addToCalendar(record)" class="text-slate-400 hover:text-tealmed-700 p-1.5" title="Adicionar ao Google Agenda"><i class="fa-solid fa-calendar-plus"></i></button>
+                                        <button @click="deleteRecord(record.id)" class="text-slate-400 hover:text-[#B3261E] p-1.5" title="Excluir"><i class="fa-solid fa-trash"></i></button>
                                     </div>
                                 </div>
 
-                                <div v-if="getMemberRecords(currentMember.id).length === 0" class="text-center py-10 bg-white rounded-2xl border border-slate-200/80">
-                                    <div class="w-12 h-12 rounded-2xl bg-slate-50 text-slate-400 flex items-center justify-center mx-auto mb-3"><i class="fa-solid fa-folder-open text-xl"></i></div>
-                                    <p class="text-slate-500 font-bold text-xs">Prontuário vazio para este paciente.</p>
+                                <div v-if="record.category === 'Consulta Clínica'" class="p-5 grid grid-cols-1 gap-2.5 text-sm text-slate-800">
+                                    <p v-if="record.anamnesis"><b class="inline-block w-5 text-[#1E4FBF]">S:</b> {{ record.anamnesis }}</p>
+                                    <p v-if="record.exam"><b class="inline-block w-5 text-[#6D3BB0]">O:</b> {{ record.exam }}</p>
+                                    <p v-if="record.diagnosis"><b class="inline-block w-5 text-[#0B6E69]">A:</b> {{ record.diagnosis }}</p>
+                                    <p v-if="record.plan"><b class="inline-block w-5 text-[#137A4B]">P:</b> {{ record.plan }}</p>
                                 </div>
+                                <div v-else class="p-5">
+                                    <h3 class="font-semibold text-slate-900">{{ record.title }}</h3>
+                                    <p class="text-sm text-slate-600 mt-1 whitespace-pre-line leading-relaxed">{{ record.details }}</p>
+                                </div>
+                            </section>
+
+                            <div v-if="getMemberRecords(currentMember.id).length === 0" class="vp-card p-10 text-center">
+                                <p class="text-slate-700 font-semibold">Prontuário vazio para este paciente.</p>
+                                <p class="text-slate-500 text-xs mt-1">Registre uma consulta ou uma nota para começar.</p>
                             </div>
                         </div>
                     </div>
+
+                    
 
                     <!-- ================= VIEW 4: CENTRAL DE EXAMES & PRAZOS (HUB GERAL) ================= -->
                     <div v-if="activeTab === 'examsHub'" class="max-w-6xl mx-auto space-y-4 animate-fade">
@@ -2750,6 +2740,10 @@
                     return periodicExams.value.filter(e => e.memberId === memberId && e.nextDueDate && new Date(e.nextDueDate) < today);
                 };
                 const getMemberVitals = (memberId) => vitals.value.filter(v => v.memberId === memberId);
+                const getMemberEvolutions = (memberId) => getMemberRecords(memberId)
+                    .filter(r => r.category === 'Consulta Clínica')
+                    .sort((a, b) => new Date(b.date) - new Date(a.date));
+                const getLatestEvolution = (memberId) => getMemberEvolutions(memberId)[0] || null;
                 const getLatestVital = (memberId) => [...getMemberVitals(memberId)].sort((a, b) => new Date(b.date) - new Date(a.date))[0] || null;
                 const vitalCards = (memberId) => {
                     const v = getLatestVital(memberId) || {};
@@ -2812,7 +2806,7 @@
                     openRecordModal, saveRecord, deleteRecord,
                     openConsultationModal, saveConsultation,
                     generateMedicalReport, printReport, openSosModal, handleAlertAction, addToCalendar,
-                    getMemberRecords, getMemberExams, getMemberOverdueExams, getMemberVitals, getLatestVital, vitalCards, getMemberMeds,
+                    getMemberRecords, getMemberExams, getMemberOverdueExams, getMemberVitals, getLatestVital, vitalCards, getLatestEvolution, getMemberMeds,
                     calculateAge, formatDate, formatDateOnly, getCategoryColor, getCategoryIcon,
                     todayAgenda, todayDosesTotal, todayDosesDone, todayLabel, notificationSupported,
                     doseSlots, toggleDose, downloadIcs, toast
