@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Vitalis Pro - Prontuário & Saúde Familiar</title>
+    <title>Vitalis Pro - Prontuário & Saúde</title>
     
     <!-- PWA Config -->
     <link rel="manifest" href="manifest.json?v=4">
@@ -142,11 +142,11 @@
                 </div>
                 
                 <h1 class="text-3xl font-extrabold text-white tracking-tight">Vitalis Pro</h1>
-                <p class="text-tealmed-200 text-sm mt-1 font-medium">Gestão & Prontuário de Saúde Familiar</p>
+                <p class="text-tealmed-200 text-sm mt-1 font-medium">Gestão & Prontuário de Pacientes</p>
                 <div class="w-12 h-1 bg-gradient-to-r from-tealmed-400 to-emerald-400 rounded-full mx-auto my-5"></div>
                 
                 <p class="text-slate-300 text-xs mb-8 leading-relaxed">
-                    Acompanhe medicamentos, histórico de consultas, sinais vitais e receba alertas automáticos para novos exames e checkups dos seus pais e familiares.
+                    Acompanhe medicamentos, histórico de consultas, sinais vitais e receba alertas automáticos para novos exames e checkups dos seus pacientes.
                 </p>
                 
                 <button @click="loginWithGoogle" :disabled="loading" class="w-full flex items-center justify-center gap-3.5 bg-white hover:bg-slate-50 text-slate-800 font-bold py-3.5 px-6 rounded-2xl shadow-xl transition-all duration-200 active:scale-[0.98] disabled:opacity-75">
@@ -179,7 +179,7 @@
                         </div>
                         <div>
                             <span class="font-extrabold text-lg text-slate-900 tracking-tight leading-tight block">Vitalis Pro</span>
-                            <span class="text-[10px] font-bold text-tealmed-700 bg-tealmed-50 px-2 py-0.5 rounded-full uppercase tracking-wider">Familiar</span>
+                            
                         </div>
                     </div>
                     
@@ -272,7 +272,7 @@
                     <!-- Desktop Header Title & Global Search Bar -->
                     <div class="hidden md:flex items-center gap-4 flex-1 max-w-xl mr-4">
                         <h1 class="text-lg font-extrabold text-slate-900 tracking-tight whitespace-nowrap">
-                            {{ activeTab === 'dashboard' ? 'Painel Familiar' : activeTab === 'members' ? 'Pacientes' : activeTab === 'memberDetail' ? (currentMember ? currentMember.name : 'Prontuário') : activeTab === 'examsHub' ? 'Exames & Prazos' : activeTab === 'medicationsHub' ? 'Medicamentos' : 'Histórico Global' }}
+                            {{ activeTab === 'dashboard' ? 'Painel' : activeTab === 'members' ? 'Pacientes' : activeTab === 'memberDetail' ? (currentMember ? currentMember.name : 'Prontuário') : activeTab === 'examsHub' ? 'Exames & Prazos' : activeTab === 'medicationsHub' ? 'Medicamentos' : 'Histórico Global' }}
                         </h1>
 
                         <!-- Barra de Busca Rápida de Pacientes no Header Superior -->
@@ -322,13 +322,13 @@
                             <div class="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
                                 <div>
                                     <div class="inline-flex items-center gap-2 bg-white/10 backdrop-blur-md px-3 py-1 rounded-full text-xs font-semibold text-white border border-white/15 mb-3">
-                                        <i class="fa-solid fa-heart-pulse text-emerald-400"></i> Saúde da Família em Dia
+                                        <i class="fa-solid fa-heart-pulse text-emerald-400"></i> Pacientes em Dia
                                     </div>
                                     <h2 class="text-2xl md:text-3xl font-extrabold tracking-tight text-white">
                                         Olá, {{ user.displayName.split(' ')[0] }}
                                     </h2>
                                     <p class="text-slate-300 text-sm mt-1 max-w-xl">
-                                        Aqui está o resumo dos cuidados clínicos, receitas e exames programados para sua família.
+                                        Aqui está o resumo dos cuidados clínicos, receitas e exames programados para os seus pacientes.
                                     </p>
                                 </div>
 
@@ -411,7 +411,7 @@
                             <button @click="navigateTo('members')" class="vp-card p-5 text-left hover:border-tealmed-400 transition-colors">
                                 <div class="text-xs font-semibold text-slate-500">Pacientes</div>
                                 <div class="text-3xl font-semibold font-mono tabular-nums text-slate-900 mt-1">{{ totalMembers }}</div>
-                                <div class="text-xs text-slate-500 mt-2">Ativos na família</div>
+                                <div class="text-xs text-slate-500 mt-2">Pacientes ativos</div>
                             </button>
                             <button @click="navigateTo('examsHub')" class="vp-card p-5 text-left hover:border-tealmed-400 transition-colors">
                                 <div class="text-xs font-semibold text-slate-500">Exames programados</div>
@@ -421,7 +421,7 @@
                             <button @click="navigateTo('medicationsHub')" class="vp-card p-5 text-left hover:border-tealmed-400 transition-colors">
                                 <div class="text-xs font-semibold text-slate-500">Medicamentos contínuos</div>
                                 <div class="text-3xl font-semibold font-mono tabular-nums text-slate-900 mt-1">{{ medications.length }}</div>
-                                <div class="text-xs mt-2 text-slate-500">Uso contínuo da família</div>
+                                <div class="text-xs mt-2 text-slate-500">Uso contínuo</div>
                             </button>
                             <button @click="navigateTo('timeline')" class="vp-card p-5 text-left hover:border-tealmed-400 transition-colors">
                                 <div class="text-xs font-semibold text-slate-500">Registros clínicos</div>
@@ -434,7 +434,7 @@
                         <div class="space-y-4">
                             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
                                 <h3 class="font-extrabold text-slate-900 text-lg flex items-center gap-2">
-                                    <i class="fa-solid fa-user-doctor text-tealmed-600"></i> Pacientes da Família
+                                    <i class="fa-solid fa-user-doctor text-tealmed-600"></i> Pacientes
                                 </h3>
                                 
                                 <div class="flex items-center gap-3 w-full sm:w-auto">
@@ -457,6 +457,9 @@
                             <!-- Grid com Filtro Reativo -->
                             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                                 <div v-for="m in filteredMembers" :key="m.id" @click="openMemberDetail(m)" class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-subtle hover:border-tealmed-400 hover:shadow-lg transition-all cursor-pointer group relative">
+                                <button @click.stop="toggleFavorite(m)" :title="m.favorite ? 'Remover dos favoritos' : 'Favoritar'" class="absolute top-3 right-3 z-10 w-8 h-8 rounded-lg flex items-center justify-center hover:bg-amber-50 transition-colors">
+                                    <i :class="m.favorite ? 'fa-solid fa-star text-amber-500' : 'fa-regular fa-star text-slate-300'"></i>
+                                </button>
                                     <div class="flex items-center gap-4">
                                         <div class="w-14 h-14 rounded-2xl bg-gradient-to-tr from-slate-100 to-tealmed-50 flex items-center justify-center text-slate-700 font-black text-xl group-hover:from-tealmed-600 group-hover:to-emerald-500 group-hover:text-white transition-all border border-slate-100 shadow-sm">
                                             {{ m.name.charAt(0) }}
@@ -531,7 +534,7 @@
                             <div>
                                 <h2 class="text-xl font-extrabold text-slate-900">Pacientes</h2>
                                 <p class="text-xs text-slate-500 mt-0.5">
-                                    {{ memberSearchQuery ? `Mostrando ${filteredMembers.length} de ${totalMembers} pacientes` : `${totalMembers} pacientes cadastrados na família` }}
+                                    {{ memberSearchQuery ? `Mostrando ${filteredMembers.length} de ${totalMembers} pacientes` : `${totalMembers} pacientes cadastrados` }}
                                 </p>
                             </div>
                             <div class="flex w-full sm:w-auto gap-3">
@@ -549,8 +552,9 @@
                         <div class="vp-card overflow-hidden">
                             <div class="overflow-x-auto">
                                 <table class="w-full text-sm">
-                                    <thead class="bg-slate-100 text-xs text-slate-600">
+                                        <thead class="bg-slate-100 text-xs text-slate-600">
                                         <tr>
+                                            <th class="w-10 px-2 py-2.5"><span class="sr-only">Favorito</span></th>
                                             <th class="text-left px-4 py-2.5 font-semibold">Paciente</th>
                                             <th class="text-left px-4 py-2.5 font-semibold">Sangue</th>
                                             <th class="text-right px-4 py-2.5 font-semibold">Consultas</th>
@@ -562,6 +566,11 @@
                                     </thead>
                                     <tbody class="divide-y divide-slate-100">
                                         <tr v-for="member in filteredMembers" :key="member.id" @click="openMemberDetail(member)" class="hover:bg-slate-50 cursor-pointer">
+                                            <td class="px-2 py-3">
+                                                <button @click.stop="toggleFavorite(member)" :title="member.favorite ? 'Remover dos favoritos' : 'Favoritar'" class="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-amber-50 transition-colors">
+                                                    <i :class="member.favorite ? 'fa-solid fa-star text-amber-500' : 'fa-regular fa-star text-slate-300'"></i>
+                                                </button>
+                                            </td>
                                             <td class="px-4 py-3">
                                                 <div class="flex items-center gap-3">
                                                     <div class="w-9 h-9 rounded-full bg-tealmed-100 text-tealmed-700 font-bold flex items-center justify-center shrink-0">{{ member.name.charAt(0) }}</div>
@@ -588,7 +597,7 @@
                                         <tr v-if="filteredMembers.length === 0">
                                             <td colspan="7" class="px-4 py-10 text-center">
                                                 <p class="font-semibold text-slate-800">Nenhum paciente encontrado</p>
-                                                <p class="text-xs text-slate-500 mt-1">Nenhum familiar com o nome "{{ memberSearchQuery }}".</p>
+                                                <p class="text-xs text-slate-500 mt-1">Nenhum paciente com o nome "{{ memberSearchQuery }}".</p>
                                                 <button @click="memberSearchQuery = ''" class="mt-3 text-xs font-bold text-tealmed-700 hover:underline">Limpar busca</button>
                                             </td>
                                         </tr>
@@ -627,6 +636,7 @@
                                     <button @click="openConsultationModal()" class="bg-white hover:bg-tealmed-50 text-tealmed-800 h-10 px-4 rounded-lg text-xs font-semibold flex items-center gap-2 transition-colors">
                                         <i class="fa-solid fa-stethoscope"></i> Nova consulta
                                     </button>
+                                    <button @click="toggleFavorite(currentMember)" :title="currentMember.favorite ? 'Remover dos favoritos' : 'Favoritar'" class="w-10 h-10 rounded-lg bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors"><i :class="currentMember.favorite ? 'fa-solid fa-star text-amber-300' : 'fa-regular fa-star text-white'"></i></button>
                                     <button @click="openMemberModal(currentMember)" class="w-10 h-10 rounded-lg bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-colors" title="Editar dados"><i class="fa-solid fa-pen text-xs"></i></button>
                                     <button @click="deleteMember(currentMember.id)" class="w-10 h-10 rounded-lg bg-red-500/20 hover:bg-red-500/40 text-red-200 hover:text-white flex items-center justify-center transition-colors" title="Excluir"><i class="fa-solid fa-trash text-xs"></i></button>
                                 </div>
@@ -901,7 +911,7 @@
                         <div class="vp-card p-5 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                             <div>
                                 <h2 class="text-xl font-extrabold text-slate-900">Exames & checkups</h2>
-                                <p class="text-xs text-slate-500 mt-0.5">Prazos de renovação de toda a família, calculados automaticamente.</p>
+                                <p class="text-xs text-slate-500 mt-0.5">Prazos de renovação de todos os pacientes, calculados automaticamente.</p>
                             </div>
                             <button @click="openPeriodicExamModal()" class="bg-tealmed-600 hover:bg-tealmed-700 text-white px-4 py-2.5 rounded-md text-xs font-bold flex items-center gap-2 transition-all">
                                 <i class="fa-solid fa-plus"></i> Programar exame
@@ -957,7 +967,7 @@
                                             </td>
                                         </tr>
                                         <tr v-if="periodicExams.length === 0">
-                                            <td colspan="6" class="px-4 py-10 text-center text-slate-500">Nenhum exame periódico registrado na família.</td>
+                                            <td colspan="6" class="px-4 py-10 text-center text-slate-500">Nenhum exame periódico registrado.</td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -986,7 +996,7 @@
                                                         <div class="vp-card p-5">
                                 <div class="text-xs font-semibold text-slate-500">Remédios cadastrados</div>
                                 <div class="text-3xl font-semibold font-mono tabular-nums text-slate-900 mt-1">{{ medications.length }}</div>
-                                <div class="text-xs text-slate-500 mt-2">Uso contínuo da família</div>
+                                <div class="text-xs text-slate-500 mt-2">Uso contínuo</div>
                             </div>
                         </div>
 
@@ -1029,7 +1039,7 @@
                     <div v-if="activeTab === 'timeline'" class="max-w-4xl mx-auto space-y-6 animate-fade">
                         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-5 rounded-2xl border border-slate-200/80 shadow-subtle">
                             <div>
-                                <h2 class="text-xl font-extrabold text-slate-900">Histórico Global da Família</h2>
+                                <h2 class="text-xl font-extrabold text-slate-900">Histórico Global</h2>
                                 <p class="text-xs text-slate-500">Linha do tempo unificada de todos os atendimentos e registros clínicos.</p>
                             </div>
                             
@@ -1187,7 +1197,7 @@
                     <div class="border-b-2 border-slate-900 pb-4 flex justify-between items-start">
                         <div>
                             <h2 class="text-2xl font-black tracking-tight text-slate-900">VITALIS PRO</h2>
-                            <p class="text-xs text-slate-500 uppercase tracking-wider font-bold">Prontuário de Saúde Familiar</p>
+                            <p class="text-xs text-slate-500 uppercase tracking-wider font-bold">Prontuário de Saúde</p>
                         </div>
                         <div class="text-right text-xs text-slate-500">
                             <p class="font-bold text-slate-800">Data de Emissão</p>
@@ -1275,7 +1285,7 @@
         <div v-if="showMemberModal" class="fixed inset-0 bg-slate-900/60 z-50 flex items-center justify-center p-4 backdrop-blur-sm animate-fade">
             <div class="bg-white rounded-3xl w-full max-w-lg shadow-2xl flex flex-col max-h-[90vh] overflow-hidden">
                 <div class="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50">
-                    <h3 class="text-base font-extrabold text-slate-900">{{ isEditing ? 'Editar Paciente' : 'Cadastrar Paciente / Familiar' }}</h3>
+                    <h3 class="text-base font-extrabold text-slate-900">{{ isEditing ? 'Editar Paciente' : 'Cadastrar Paciente' }}</h3>
                     <button @click="showMemberModal = false" class="w-8 h-8 rounded-xl bg-slate-100 hover:bg-red-50 text-slate-400 hover:text-red-500 flex items-center justify-center transition-colors"><i class="fa-solid fa-times"></i></button>
                 </div>
                 <div class="p-6 overflow-y-auto space-y-4">
@@ -1785,7 +1795,7 @@
                         const leadMs = (Number(r.remindBefore) || 0) * 60000;
                         if (now < at - leadMs || now > at + 2 * 3600000) return;
                         const when = new Date(r.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-                        fire(`rec_${r.id}_${r.date}`, `${r.category}: ${r.title}`, `${r.memberName || 'Família'} • ${leadMs ? 'começa' : 'agora'} às ${when}`);
+                        fire(`rec_${r.id}_${r.date}`, `${r.category}: ${r.title}`, `${r.memberName || 'Paciente'} • ${leadMs ? 'começa' : 'agora'} às ${when}`);
                     });
 
                     // 2. Doses de medicamentos no horário e ainda não marcadas como tomadas
@@ -1793,7 +1803,7 @@
                         parseTimes(med.times).forEach(time => {
                             const at = timeToDate(time).getTime();
                             if (now < at || now > at + 2 * 3600000 || isTakenToday(med, time)) return;
-                            fire(`dose_${med.id}_${todayKey}_${time}`, `Hora do remédio: ${med.name}`, `${med.memberName || 'Família'} • ${med.dosage || 'Dose'} às ${time}. Toque para marcar.`);
+                            fire(`dose_${med.id}_${todayKey}_${time}`, `Hora do remédio: ${med.name}`, `${med.memberName || 'Paciente'} • ${med.dosage || 'Dose'} às ${time}. Toque para marcar.`);
                         });
                     });
 
@@ -1804,9 +1814,9 @@
                         const daysLeft = Math.round((localDateFromKey(exam.nextDueDate) - todayStart) / 86400000);
                         if (daysLeft > 15) return;
                         if (daysLeft <= 0) {
-                            fire(`exam_${exam.id}_${todayKey}`, daysLeft < 0 ? `Exame atrasado: ${exam.title}` : `Exame vence hoje: ${exam.title}`, `${exam.memberName || 'Família'} • Solicite um novo pedido médico.`);
+                            fire(`exam_${exam.id}_${todayKey}`, daysLeft < 0 ? `Exame atrasado: ${exam.title}` : `Exame vence hoje: ${exam.title}`, `${exam.memberName || 'Paciente'} • Solicite um novo pedido médico.`);
                         } else {
-                            fire(`exam_aviso_${exam.id}_${exam.nextDueDate}`, `Exame a vencer: ${exam.title}`, `${exam.memberName || 'Família'} • vence em ${daysLeft} dias.`);
+                            fire(`exam_aviso_${exam.id}_${exam.nextDueDate}`, `Exame a vencer: ${exam.title}`, `${exam.memberName || 'Paciente'} • vence em ${daysLeft} dias.`);
                         }
                     });
 
@@ -1838,7 +1848,7 @@
                     const lines = [
                         'BEGIN:VCALENDAR',
                         'VERSION:2.0',
-                        'PRODID:-//Vitalis Pro//Prontuario Familiar//PT-BR',
+                        'PRODID:-//Vitalis Pro//Prontuario//PT-BR',
                         'CALSCALE:GREGORIAN',
                         'BEGIN:VEVENT',
                         `UID:${r.id || Date.now()}@vitalis-pro`,
@@ -1871,8 +1881,16 @@
                 // ================= COMPUTEDS =================
                 const totalMembers = computed(() => members.value.length);
 
+                const toggleFavorite = async (member) => {
+                    try {
+                        await updateDoc(doc(db, 'families', FAMILY_SHARED_ID, 'members', member.id), { favorite: !member.favorite });
+                    } catch (e) { alert('Erro ao favoritar paciente: ' + e.message); }
+                };
                 const sortedMembers = computed(() =>
-                    [...members.value].sort((a, b) => (a.name || '').localeCompare(b.name || '', 'pt-BR', { sensitivity: 'base' }))
+                    [...members.value].sort((a, b) =>
+                        (b.favorite ? 1 : 0) - (a.favorite ? 1 : 0) ||
+                        (a.name || '').localeCompare(b.name || '', 'pt-BR', { sensitivity: 'base' })
+                    )
                 );
                 const filteredMembers = computed(() => {
                     if (!memberSearchQuery.value) return sortedMembers.value;
@@ -2046,7 +2064,7 @@
                     try {
                         const result = await signInWithPopup(auth, new GoogleAuthProvider());
                         if (!ALLOWED_EMAILS.includes(result.user.email)) {
-                            await signOut(auth); errorMsg.value = 'Email não autorizado para acessar este prontuário familiar.';
+                            await signOut(auth); errorMsg.value = 'Email não autorizado para acessar este prontuário.';
                         }
                     } catch (error) { errorMsg.value = 'Erro na autenticação com o Google.'; console.error(error); } 
                     finally { loading.value = false; }
@@ -2654,7 +2672,7 @@
                 return {
                     user, loading, errorMsg, notificationStatus, activeTab, memberTab,
                     members, records, periodicExams, vitals, medications, currentMember, reportMember,
-                    memberSearchQuery, timelineSearchQuery, sortedMembers, filteredMembers, filteredTimeline,
+                    memberSearchQuery, timelineSearchQuery, sortedMembers, toggleFavorite, filteredMembers, filteredTimeline,
                     upcomingReminders, overdueExamsCount, upcomingExamsCount, upToDateExamsCount,
                     allAlertsList, allAlertsCount,
                     showNotificationsModal, showReportModal,
