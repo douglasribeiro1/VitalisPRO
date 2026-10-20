@@ -667,33 +667,19 @@
                             </div>
 
                             <div class="grid grid-cols-1 lg:grid-cols-[minmax(0,1.25fr)_minmax(0,1fr)] gap-4 items-stretch">
-                                <!-- Medicações em uso -->
+                                <!-- Medicações em uso (cadastro clínico, uma por linha) -->
                                 <section class="vp-card p-5 min-w-0">
                                     <div class="flex justify-between items-center mb-3.5">
                                         <h2 class="flex items-center gap-2 font-semibold text-base text-slate-900"><span class="w-2 h-2 rounded-full bg-[#6D3BB0]"></span> Medicações em uso</h2>
-                                        <button @click="memberTab = 'meds'" class="text-sm font-semibold text-tealmed-700 hover:underline">Ver todas</button>
+                                        <button @click="openMemberModal(currentMember)" class="text-sm font-semibold text-tealmed-700 hover:underline">Editar</button>
                                     </div>
-                                    <div class="overflow-x-auto">
-                                        <table class="vp-table">
-                                            <thead>
-                                                <tr class="bg-[#F1EAFA] text-[#6D3BB0]"><th>Medicamento</th><th>Dose</th><th>Horários</th><th>Estoque</th></tr>
-                                            </thead>
-                                            <tbody>
-                                                <tr v-for="med in getMemberMeds(currentMember.id)" :key="med.id">
-                                                    <td class="font-semibold">{{ med.name }}</td>
-                                                    <td class="font-mono whitespace-nowrap">{{ med.dosage || '—' }}</td>
-                                                    <td class="font-mono font-medium text-[#6D3BB0]">{{ med.times || '08:00' }}</td>
-                                                    <td class="font-mono whitespace-nowrap">
-                                                        <span v-if="med.stockTotal" :class="calculatePillsLeft(med) <= 5 ? 'text-[#B3261E] font-semibold' : ''">{{ calculatePillsLeft(med) }} un. · ~{{ calculateDaysLeft(med) }} dias</span>
-                                                        <span v-else class="text-slate-400">—</span>
-                                                    </td>
-                                                </tr>
-                                                <tr v-if="getMemberMeds(currentMember.id).length === 0">
-                                                    <td colspan="4" class="text-center text-slate-500 py-8">Nenhum medicamento cadastrado.</td>
-                                                </tr>
-                                            </tbody>
-                                        </table>
-                                    </div>
+                                    <ol v-if="memberMedLines(currentMember).length" class="divide-y divide-[#EEF1F4]">
+                                        <li v-for="(line, i) in memberMedLines(currentMember)" :key="i" class="py-2.5 flex gap-3 text-sm text-slate-800">
+                                            <span class="font-mono text-xs text-slate-400 pt-0.5">{{ i + 1 }}.</span>
+                                            <span class="font-medium">{{ line }}</span>
+                                        </li>
+                                    </ol>
+                                    <p v-else class="text-sm text-slate-500 py-8 text-center">Nenhum medicamento registrado. Use "Editar" para incluir, um por linha.</p>
                                 </section>
 
                                 <!-- Evolução -->
@@ -1401,7 +1387,7 @@
                     </div>
                     <div>
                         <label class="block text-xs font-bold text-emerald-600 uppercase mb-1.5">Medicamentos Contínuos (Resumo)</label>
-                        <textarea v-model="memberForm.medications" rows="2" placeholder="Losartana 50mg (manhã), Metformina 850mg (almoço)..." class="w-full p-3.5 bg-slate-50 rounded-xl border border-slate-200 focus:border-emerald-500 focus:bg-white outline-none text-xs font-semibold text-slate-800 transition-all"></textarea>
+                        <textarea v-model="memberForm.medications" rows="4" placeholder="Um medicamento por linha:&#10;Losartana 50 mg 1x ao dia&#10;Metformina 850 mg 2x ao dia" class="w-full p-3.5 bg-slate-50 rounded-xl border border-slate-200 focus:border-emerald-500 focus:bg-white outline-none text-xs font-semibold text-slate-800 transition-all"></textarea>
                     </div>
                 </div>
                 <div class="p-4 border-t border-slate-100 bg-slate-50 flex gap-3">
@@ -2743,10 +2729,11 @@
                     .filter(r => r.category === 'Consulta Clínica')
                     .sort((a, b) => new Date(b.date) - new Date(a.date));
                 const getLatestEvolution = (memberId) => getMemberEvolutions(memberId)[0] || null;
+                const memberMedLines = (m) => (m?.medications || '').split('\n').map(l => l.trim()).filter(Boolean);
                 const getLatestVital = (memberId) => [...getMemberVitals(memberId)].sort((a, b) => new Date(b.date) - new Date(a.date))[0] || null;
                 const vitalCards = (memberId) => {
                     const v = getLatestVital(memberId) || {};
-                    const note = v.date ? `Aferida em ${formatDate(v.date)}` : 'Nenhuma aferição';
+                    const note = v.date ? `Aferida em ${new Date(v.date).toLocaleDateString('pt-BR')} às ${new Date(v.date).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}` : 'Nenhuma aferição';
                     const or = (x) => (x === undefined || x === null || x === '') ? '--' : x;
                     return [
                         { label: 'Pressão arterial', value: v.systolic && v.diastolic ? `${v.systolic}/${v.diastolic}` : '--', unit: 'mmHg', note },
@@ -2805,7 +2792,7 @@
                     openRecordModal, saveRecord, deleteRecord,
                     openConsultationModal, saveConsultation,
                     generateMedicalReport, printReport, openSosModal, handleAlertAction, addToCalendar,
-                    getMemberRecords, getMemberExams, getMemberOverdueExams, getMemberVitals, getLatestVital, vitalCards, getLatestEvolution, getMemberMeds,
+                    getMemberRecords, getMemberExams, getMemberOverdueExams, getMemberVitals, getLatestVital, vitalCards, getLatestEvolution, memberMedLines, getMemberMeds,
                     calculateAge, formatDate, formatDateOnly, getCategoryColor, getCategoryIcon,
                     todayAgenda, todayDosesTotal, todayDosesDone, todayLabel, notificationSupported,
                     doseSlots, toggleDose, downloadIcs, toast
