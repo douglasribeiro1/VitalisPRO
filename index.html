@@ -1227,7 +1227,7 @@
                     <!-- Resumo Rápido por Paciente da Família -->
                     <div class="space-y-3">
                         <h4 class="font-extrabold text-slate-800 text-xs uppercase tracking-wider">Alergias & Dados Vitais por Membro</h4>
-                        <div v-for="m in members" :key="m.id" class="p-4 rounded-2xl bg-slate-50 border border-slate-200">
+                        <div v-for="m in sortedMembers" :key="m.id" class="p-4 rounded-2xl bg-slate-50 border border-slate-200">
                             <div class="flex justify-between items-center">
                                 <span class="font-extrabold text-slate-900 text-sm">{{ m.name }}</span>
                                 <span class="text-xs font-bold text-red-600 bg-red-50 px-2.5 py-0.5 rounded-full border border-red-100">Tipo: {{ m.bloodType || 'N/A' }}</span>
@@ -1413,7 +1413,7 @@
                         <label class="block text-xs font-bold text-slate-600 uppercase mb-1.5">Paciente</label>
                         <select v-model="periodicExamForm.memberId" class="w-full p-3.5 bg-slate-50 rounded-xl border border-slate-200 focus:border-tealmed-500 focus:bg-white outline-none text-xs font-bold text-slate-800 transition-all">
                             <option value="" disabled>Selecione um paciente...</option>
-                            <option v-for="m in members" :key="m.id" :value="m.id">{{ m.name }}</option>
+                            <option v-for="m in sortedMembers" :key="m.id" :value="m.id">{{ m.name }}</option>
                         </select>
                     </div>
 
@@ -1463,7 +1463,7 @@
                         <label class="block text-xs font-bold text-slate-600 uppercase mb-1.5">Paciente</label>
                         <select v-model="vitalForm.memberId" class="w-full p-3.5 bg-slate-50 rounded-xl border border-slate-200 focus:border-tealmed-500 focus:bg-white outline-none text-xs font-bold text-slate-800 transition-all">
                             <option value="" disabled>Selecione um paciente...</option>
-                            <option v-for="m in members" :key="m.id" :value="m.id">{{ m.name }}</option>
+                            <option v-for="m in sortedMembers" :key="m.id" :value="m.id">{{ m.name }}</option>
                         </select>
                     </div>
 
@@ -1517,7 +1517,7 @@
                         <label class="block text-xs font-bold text-slate-600 uppercase mb-1.5">Paciente</label>
                         <select v-model="medicationForm.memberId" class="w-full p-3.5 bg-slate-50 rounded-xl border border-slate-200 focus:border-tealmed-500 focus:bg-white outline-none text-xs font-bold text-slate-800 transition-all">
                             <option value="" disabled>Selecione um paciente...</option>
-                            <option v-for="m in members" :key="m.id" :value="m.id">{{ m.name }}</option>
+                            <option v-for="m in sortedMembers" :key="m.id" :value="m.id">{{ m.name }}</option>
                         </select>
                     </div>
 
@@ -1572,7 +1572,7 @@
                         <label class="block text-xs font-bold text-slate-600 uppercase mb-1.5">Paciente</label>
                         <select v-model="recordForm.memberId" :disabled="isEditingRecord" class="w-full p-3.5 bg-slate-50 rounded-xl border border-slate-200 focus:border-tealmed-500 focus:bg-white outline-none text-xs font-bold text-slate-800 transition-all disabled:opacity-60">
                             <option value="" disabled>Selecione um paciente...</option>
-                            <option v-for="m in members" :key="m.id" :value="m.id">{{ m.name }}</option>
+                            <option v-for="m in sortedMembers" :key="m.id" :value="m.id">{{ m.name }}</option>
                         </select>
                     </div>
 
@@ -1972,10 +1972,13 @@
                 // ================= COMPUTEDS =================
                 const totalMembers = computed(() => members.value.length);
 
+                const sortedMembers = computed(() =>
+                    [...members.value].sort((a, b) => (a.name || '').localeCompare(b.name || '', 'pt-BR', { sensitivity: 'base' }))
+                );
                 const filteredMembers = computed(() => {
-                    if (!memberSearchQuery.value) return members.value;
+                    if (!memberSearchQuery.value) return sortedMembers.value;
                     const q = memberSearchQuery.value.trim().toLowerCase();
-                    return members.value.filter(m => m.name && m.name.toLowerCase().includes(q));
+                    return sortedMembers.value.filter(m => m.name && m.name.toLowerCase().includes(q));
                 });
 
                 const filteredTimeline = computed(() => {
@@ -2815,7 +2818,7 @@
                 return {
                     user, loading, errorMsg, notificationStatus, activeTab, memberTab,
                     members, records, periodicExams, vitals, medications, currentMember, reportMember,
-                    memberSearchQuery, timelineSearchQuery, filteredMembers, filteredTimeline,
+                    memberSearchQuery, timelineSearchQuery, sortedMembers, filteredMembers, filteredTimeline,
                     upcomingReminders, overdueExamsCount, upcomingExamsCount, upToDateExamsCount, lowStockMedsCount,
                     allAlertsList, allAlertsCount,
                     showNotificationsModal, showSosModal, showReportModal,
