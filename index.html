@@ -63,7 +63,6 @@
                             900: '#063330',
                             950: '#042322'
                         }
-                        }
                     },
                     boxShadow: {
                         'glow-teal': '0 0 25px -5px rgba(20, 184, 166, 0.3)',
@@ -682,9 +681,9 @@
                                             <tbody>
                                                 <tr v-for="med in getMemberMeds(currentMember.id)" :key="med.id">
                                                     <td class="font-semibold">{{ med.name }}</td>
-                                                    <td class="font-mono">{{ med.dosage || '—' }}</td>
+                                                    <td class="font-mono whitespace-nowrap">{{ med.dosage || '—' }}</td>
                                                     <td class="font-mono font-medium text-[#6D3BB0]">{{ med.times || '08:00' }}</td>
-                                                    <td class="font-mono">
+                                                    <td class="font-mono whitespace-nowrap">
                                                         <span v-if="med.stockTotal" :class="calculatePillsLeft(med) <= 5 ? 'text-[#B3261E] font-semibold' : ''">{{ calculatePillsLeft(med) }} un. · ~{{ calculateDaysLeft(med) }} dias</span>
                                                         <span v-else class="text-slate-400">—</span>
                                                     </td>
@@ -2457,7 +2456,7 @@
                     const memberVitalsList = getMemberVitals(currentMember.value.id);
                     if (memberVitalsList.length === 0) return;
 
-                    const labels = memberVitalsList.map(v => formatDateOnly(v.date));
+                    const labels = memberVitalsList.map(v => new Date(v.date).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }));
                     const systolicData = memberVitalsList.map(v => v.systolic || null);
                     const diastolicData = memberVitalsList.map(v => v.diastolic || null);
 
